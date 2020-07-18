@@ -12,15 +12,17 @@
 	// modules
 	import * as jobs from '../modules/jobs';
 
-	// props
+	// props attached when starting a job
 	export let params = {}
 
 	const onClickVerify = i => push(`/verify/${i}`);
-	const onClickApprove = i => console.log(`Approve ${i}`);
-	const onClickRefuse = i => console.log(`Refuse ${i}`);
+
+	// mock
+	const onClickApprove = i => console.log(`Approve ${i}`); // must communiacte with the Job module and the Identity Module
+	const onClickRefuse = i => console.log(`Refuse ${i}`); // must communiacte with the Job module
 	
 	var crypt = new Crypt();
-	var verificator = jobs.getVerificator();
+	var verificator = jobs.getVerificator(1); // for PoC only, verificator[1] is the user actualy verifying and will have its own keypair
 	const decryptedJob = params.jobId !== null ? crypt.decrypt(verificator.privateKey, jobs.get(params.jobId).data) : null
 	const decryptedObject = decryptedJob !== null ? JSON.parse(decryptedJob.message) : {};
 </script>

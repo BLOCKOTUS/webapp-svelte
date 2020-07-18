@@ -11,18 +11,18 @@
 
 	var keypair = keypairs.user1;
 
+	// unused for the PoC, but necessary for the RC 
 	// var rsa = new RSA();
 	var crypt = new Crypt();
-
+	
+	// unused for the PoC, but necessary for the RC 
 	// rsa.generateKeyPairAsync().then(keyPair => keypair = keyPair);
 
 	const onClick = (e) => {
 		e.preventDefault();
-		var verificator = jobs.getVerificator();
-		var citizenValue;
-		citizen.subscribe(val => citizenValue = val);
-		var encryptedData = crypt.encrypt(verificator.publicKey, JSON.stringify($citizen));
-		verificator.submit(encryptedData);
+		var verificator = jobs.getVerificator(0); // verificator is an object representation of a verified user, containing a publicKey and a submnit() function
+		var encryptedData = crypt.encrypt(verificator.publicKey, JSON.stringify($citizen)); // encryptedData is the encrypted data of the Citizen, filled in the form below
+		verificator.submit(encryptedData); // finally, we use the submit function (yet to be define) that will push the data as a new task in the Job bank, assigned to the verificator above
 	}
 </script>
 

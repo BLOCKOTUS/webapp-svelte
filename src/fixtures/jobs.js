@@ -10,6 +10,11 @@ const submit = (encryptedData) => {
 export const verificator1 = {
     submit,
     publicKey: keypairs.user2.publicKey,
+}
+
+export const verificator2 = {
+    submit,
+    publicKey: keypairs.user2.publicKey,
     privateKey: keypairs.user2.privateKey,
 }
 
