@@ -7,16 +7,17 @@ const submit = (encryptedData) => {
     push('/success/')
 }
 
-export const verificator1 = {
-    submit,
-    publicKey: keypairs.user2.publicKey,
-}
-
-export const verificator2 = {
-    submit,
-    publicKey: keypairs.user2.publicKey,
-    privateKey: keypairs.user2.privateKey,
-}
+export const verificators = [
+    {
+        submit,
+        publicKey: keypairs.user2.publicKey,
+    },
+    {
+        submit,
+        publicKey: keypairs.user2.publicKey,
+        privateKey: keypairs.user2.privateKey,
+    }
+]
 
 const job1 = {
     id: 42,
