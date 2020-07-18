@@ -17,6 +17,10 @@
     :global(.button button:hover) {
         background-color: #fafafa;
     } 
+
+    :global(.button button:active) {
+        transform: translateY(4px);
+    }
 </style>
 
 <div class="button">
