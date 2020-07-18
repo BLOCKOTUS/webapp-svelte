@@ -37,13 +37,13 @@
 
 	:global(h1) {
 		color: #ff3e00;
-		font-size: 15vw;
+		font-size: 10vw;
 		font-weight: 100;
 		margin: 4.2vw;
 	}
 
 	:global(form) {
-		font-size: 3.2vw;
+		font-size: 3vw;
 	}
 
 	:global(input) {

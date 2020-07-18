@@ -47,7 +47,7 @@
 
 <style>
   .content {
-	padding-bottom: 4.2vw;
+	padding-bottom: 3vw;
 	width: 100%;
 	display: flex;
 	flex-direction: column;
