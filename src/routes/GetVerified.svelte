@@ -39,6 +39,7 @@
 
 <GoBack />
 
+<!-- Public Key and Private Key are displayed for PoC and development purpose only. It must not be part of the RC -->
 <h4>Public key</h4>
 {keypair.publicKey}
 
