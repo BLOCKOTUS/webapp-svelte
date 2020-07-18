@@ -16,7 +16,8 @@
 
 	// rsa.generateKeyPairAsync().then(keyPair => keypair = keyPair);
 
-	const onClick = () => {
+	const onClick = (e) => {
+		e.preventDefault();
 		var verificator = jobs.getVerificator();
 		var citizenValue;
 		citizen.subscribe(val => citizenValue = val);
