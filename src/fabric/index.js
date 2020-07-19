@@ -1,31 +1,36 @@
+// @flow
 const { Wallets, Gateway } = require('fabric-network');
 const FabricCAServices = require('fabric-ca-client');
 const fs = require('fs');
 const path = require('path');
 
+type Transaction = {
+    channelId: string,
+    contractName: string,
+    keepAlive: boolean,
+    transactionName: string,
+    trasnsactionArgs: string[]
+}
+
+const ccpPath = path.resolve(__dirname, '..', 'fabric', 'connection-org1.json');
+const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
 
 const getWallet = async () => {
     const walletPath = path.resolve(__dirname, '..', 'fabric', 'wallet');
-    wallet = await Wallets.newFileSystemWallet(walletPath);
-    return wallet;
-}
-
-const getGateway = () => {
-    const gateway = gateway || new Gateway();
+    return await Wallets.newFileSystemWallet(walletPath);
 }
 
 const submitTransaction = async ({
-    channelid = 'blockotus',
-    contract = 'jobs',
+    channelId = 'blockotus',
+    contractName = 'jobs',
     keepAlive = false,
-    transaction
-}) => {
-    const ccpPath = path.resolve(__dirname, '..', 'fabric', 'connection-org1.json');
-    const ccp = JSON.parse(fs.readFileSync(ccpPath, 'utf8'));
-    const wallet = wallet || await getWallet();
-    const gateway = getGateway();
+    transactionName,
+    trasnsactionArgs
+}: Transaction) => {
+    var wallet = wallet || await getWallet();
+    var gateway = gateway || new Gateway();
     await gateway.connect(ccp, { wallet, identity: 'appUser', discovery: { enabled: true, asLocalhost: true } });
-    const network = await gateway.getNetwork(channelid);
-    const contract = network.getContract(contract);
-    return await contract.submitTransaction(...transaction);
+    var network = network || await gateway.getNetwork(channelId);
+    var contract = contract || network.getContract(contractName);
+    return await contract.submitTransaction(transactionName, ...trasnsactionArgs);
 }
