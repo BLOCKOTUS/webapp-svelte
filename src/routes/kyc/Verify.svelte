@@ -9,9 +9,6 @@
 	import Approve from '@@Components/Approve.svelte';
 	import Refuse from '@@Components/Refuse.svelte';
 
-	// modules
-	import * as job from '@@Modules/job';
-
 	// props attached when starting a job
 	export let params = {}
 
@@ -25,16 +22,18 @@
 	// var verificator = user;
 	const decryptedJob = params.jobId !== null ? crypt.decrypt(verificator.privateKey, job.get(params.jobId).data) : null
 	const decryptedObject = decryptedJob !== null ? JSON.parse(decryptedJob.message) : {};
+
+	const list = [];
 </script>
 
 <div>
 {#if params.jobId === null}
 	<table>
-		{#each Object.keys(job.getList()) as jobId, i}
+		{#each list as job, i}
 			<tr>
-				<td>{job.get(jobId).id}</td>
-				<td>{job.get(jobId).status}</td>
-				<td><Button label="verify" onclick={() => onClickVerify(jobId)}></Button></td>
+				<td>{job.id}</td>
+				<td>{job.status}</td>
+				<td><Button label="verify" onclick={() => onClickVerify(job.id)}></Button></td>
 			</tr>
 		{/each}
 	</table>

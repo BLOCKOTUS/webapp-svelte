@@ -2,7 +2,6 @@ import { writable } from 'svelte/store';
 
 export const citizen = writable({
   firstname: "",
-  surname: "",
   lastname: "",
   nation: "",
   nationalId: "",
