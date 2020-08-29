@@ -11,8 +11,8 @@
 	import Info from '@@Components/Info.svelte';
 	import { users } from "@@Stores/users.js";
 
-	var infoValue = '';
-	var infoType = '';
+	$: infoValue = '';
+	$: infoType = '';
 
 	const rsa = new RSA();
 	
@@ -23,7 +23,7 @@
 	}
 
 
-	const onClick = async (e) => {
+	const register = async (e) => {
 		e.preventDefault();
 
 		console.log('click')
@@ -69,7 +69,7 @@
 <form class="content">
 	<Info value={infoValue} type={infoType} />
 	<input type="text" bind:value={$users.tmp.username} placeholder="Username" />
-	<Submit onclick={onClick} disabled={$users.tmp.username.length == 0} />
+	<Submit onclick={register} disabled={$users.tmp.username.length == 0} />
 </form>
     
 <GoBack />
