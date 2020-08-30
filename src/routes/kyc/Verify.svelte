@@ -12,8 +12,8 @@
 	import Refuse from '@@Components/Refuse.svelte';
 	import Info from '@@Components/Info.svelte';
 	import Header from '@@Components/Header.svelte';
+	import Identity from '@@Components/Identity.svelte';
 	import { users } from "@@Stores/users.js";
-import { get } from 'svelte/store';
 
 	// props attached when starting a job
 	export let params = {}
@@ -132,14 +132,7 @@ import { get } from 'svelte/store';
 	{:then decryptedJob }
 		<div>
 			<h3>Job #{jobId}</h3>
-			<table>
-				<tr><td>Firstname</td><td>{decryptedJob.firstname}</td></tr>
-				<tr><td>Lastname</td><td>{decryptedJob.lastname}</td></tr>
-				<tr><td>Nation</td><td>{decryptedJob.nation}</td></tr>
-				<tr><td>National Id</td><td>{decryptedJob.nationalId}</td></tr>
-			</table>
-			<div>Documentation 1</div>
-			<div>Documentation 2</div>
+			<Identity identity={decryptedJob} />
 		</div>
 		<div class="refuse_approve_button">
 			<Approve label="Approve" onclick={() => onClickApproveRefuse(jobId, 1)}></Approve>
@@ -151,76 +144,10 @@ import { get } from 'svelte/store';
 <GoBack />
 
 <style>
-	* {
-		box-sizing: border-box;
-	}
-	
 	.refuse_approve_button {
 		display: flex;
 		flex-direction: row;
 		justify-content: center;
 		margin-top: 50px;
-	}
-
-	table {
-		border-spacing: 0px;
-		border-collapse: collapse;
-		width: 100%;
-		max-width: 100%;
-		margin-bottom: 15px;
-		background-color: transparent; /* Change the background-color of table here */
-		text-align: left; /* Change the text-alignment of table here */
-	}
-	
-	th {
-		font-weight: bold;
-		border: 1px solid #cccccc; /* Change the border-color of heading here */
-		padding: 8px;
-	}
-	
-	td {
-		border: 1px solid #cccccc; /* Change the border-color of cells here */
-		padding: 8px;
-	}
-	
-	/* Stylized */
-	
-	/* Adding Striped Effect for odd rows */
-	
-	tr {
-		background-color: transparent; /* Change the default background-color of rows here */
-	}
-	
-	tr:nth-of-type(2n+1) {
-		background-color: #eeeeee; /* Change the background-color of odd rows here */
-	}
-	
-	tr th {
-		background-color: #dddddd; /* Change the background-color of heading here */
-	}
-	
-	/* Adding Hover Effect for rows */
-	
-	tr {
-		-moz-transition: background-color 300ms ease-in-out 0s;
-		-ms-transition: background-color 300ms ease-in-out 0s;
-		-o-transition: background-color 300ms ease-in-out 0s;
-		-webkit-transition: background-color 300ms ease-in-out 0s;
-		transition: background-color 300ms ease-in-out 0s;
-	}
-	
-	tr:hover {
-		background-color: #e4f4d4; /* Change the hover background-color of rows here */
-	}
-	
-	/* Removing left and right border of rows for modern UIs */
-	
-	tr {
-		border-top: 1px solid #cccccc;
-		border-bottom: 1px solid #cccccc;
-	}
-	
-	th, td {
-		border: none;
 	}
 </style>

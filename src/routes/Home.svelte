@@ -7,6 +7,8 @@
 	import { users } from "@@Stores/users.js";
 	import Button from '@@Components/Button.svelte';
 	import Header from '@@Components/Header.svelte';
+
+	$: loggedUser = $users.users.filter(u => u.username === $users.loggedInUser)[0];
 </script>
 
 <div>
@@ -14,7 +16,7 @@
 	<a href="/register/username" use:link><Button label="Register" /></a>
 	<a href="/login/wallet" use:link><Button label="Login" /></a>
 	<a href="/login/accounts" use:link><Button label="Manage accounts" disabled /></a>
-	<a href="/kyc/home" use:link><Button label={appConfig.apps.kyc.appName} disabled={$users.loggedInUser === null} /></a>
+	<a href="/kyc/home" use:link><Button label={appConfig.apps.kyc.appName} disabled={!loggedUser} /></a>
 </div>
 
 
