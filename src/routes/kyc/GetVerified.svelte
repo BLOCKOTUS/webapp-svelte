@@ -22,6 +22,14 @@
 	var crypt = new Crypt();
 	$: infoType = '';
 	$: infoValue = '';
+	$: infoLoading = false;
+
+	$: submitIsDisabled = 
+		$citizen.firstname.length === 0
+		|| $citizen.lastname.length === 0
+		|| $citizen.nation.length === 0
+		|| $citizen.nationalId.length === 0;
+		 
 
 	const generateKeyPair = () => {
 		return new Promise((resolve) => {
@@ -31,6 +39,8 @@
 	
 	const createIdentity = async (e) => {
 		e.preventDefault();
+
+		infoLoading = true;
 
 		// create keypair (to be shared later)
 		const keypairToShare = await generateKeyPair();
@@ -46,7 +56,8 @@
 			})
 			.catch(e => {
 				infoType = 'error';
-				infoValue = e.message
+				infoValue = e.message;
+				infoLoading = false;
 			})
 
 		if (!resIdentity) return;
@@ -65,7 +76,8 @@
 			})
 			.catch(e => {
 				infoType = 'error';
-				infoValue = e.message
+				infoValue = e.message;
+				infoLoading = false;
 			})
 
 		if (!resJob) return;
@@ -104,7 +116,7 @@
 
 		$users.users.filter(u => u.username === username)[0].identity = {...$citizen};
 		infoType = 'info';
-		infoValue = 'Your identity have been successfully created. Wait for confirmations. You will be redirected to the job list.';
+		infoValue = 'Your identity have been successfully created. Wait for confirmations. You will be redirected.';
 		setTimeout(() => push('/'), 1500);
 	}
 </script>
@@ -112,12 +124,12 @@
 <Header title="Get verified" />
 
 <form class="content">
-	<Info type={infoType} value={infoValue} />
+	<Info type={infoType} value={infoValue} loading={infoLoading} />
 	<input type="text" bind:value={$citizen.firstname} placeholder="Firstname" />
 	<input type="text" bind:value={$citizen.lastname} placeholder="Lastname" />
 	<input type="text" bind:value={$citizen.nation} placeholder="Nation" />
 	<input type="text" bind:value={$citizen.nationalId} placeholder="Nation ID" />
-	<Submit onclick={createIdentity} />
+	<Submit onclick={createIdentity} disabled={submitIsDisabled} />
 </form>
 
 <GoBack />

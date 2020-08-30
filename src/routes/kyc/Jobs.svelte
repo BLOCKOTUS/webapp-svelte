@@ -22,6 +22,7 @@
 	$: list = [];
 	$: infoType = '';
 	$: infoValue = '';
+	$: infoLoading = true;
 
 	const onClickVerify = i => push(`/kyc/verify/${i}`);
 
@@ -32,13 +33,15 @@
 		})
 		.catch(e => {
 			infoType = 'error';
-			infoValue = e.message
+			infoValue = e.message;
+			infoLoading = false;
 		})
 		.then(resList =>{
 			if (resList) {
-				console.log(resList)
 				list = resList.data.list;
-				localStorage.setItem('job.list.pending', JSON.stringify(list))
+				localStorage.setItem('job.list.pending', JSON.stringify(list));
+				if (list.length === 0) infoValue = 'You have no jobs assigned.';
+				infoLoading = false;
 			}
 		})
 
@@ -47,7 +50,7 @@
 <Header title="Verify" />
 
 <div>
-	<Info type={infoType} value={infoValue} />
+	<Info type={infoType} value={infoValue} loading={infoLoading} />
 		<table>
 			<tr>
 				<th>Job ID</th>

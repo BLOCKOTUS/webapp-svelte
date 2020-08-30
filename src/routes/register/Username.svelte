@@ -13,6 +13,7 @@
 
 	$: infoValue = '';
 	$: infoType = '';
+	$: infoLoading = false;
 
 	const rsa = new RSA();
 	
@@ -26,8 +27,8 @@
 	const register = async (e) => {
 		e.preventDefault();
 
-		console.log('click')
-		
+		infoLoading = true;
+
 		// generate keypair
 		const keypair = await generateKeyPair();
 
@@ -46,6 +47,7 @@
 
 		infoType = success ? 'info' : 'error';
 		infoValue = message;
+		infoLoading = false;
 
 		const user = {
 			username: $users.tmp.username,
@@ -67,7 +69,7 @@
 
 <Header title="Register" />
 <form class="content">
-	<Info value={infoValue} type={infoType} />
+	<Info value={infoValue} type={infoType} loading={infoLoading} />
 	<input type="text" bind:value={$users.tmp.username} placeholder="Username" />
 	<Submit onclick={register} disabled={$users.tmp.username.length == 0} />
 </form>

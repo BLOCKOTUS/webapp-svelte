@@ -25,13 +25,15 @@
 
 	$: infoType = '';
 	$: infoValue = '';
+	$: infoLoading = true;
 
 	// mock
 	const onClickApproveRefuse = async (i, result) => {
 		console.log(`Approve ${i}`);
-
+		
 		infoType = 'info';
 		infoValue = 'Submiting result...';
+		infoLoading = true;
 
 		const resComplete = await axios.post(appConfig.nerves.job.complete.url, {
 			jobId,
@@ -39,13 +41,15 @@
 			user: {username, wallet}
 		}).catch(e => {
 			infoType = 'error';
-			infoValue = resComplete.data.message || 'error'
+			infoValue = resComplete.data.message || 'error';
+			infoLoading = false;
 			return;
 		})
 
 		if(!resComplete || !resComplete.data.success){
 			infoType = 'error';
-			infoValue = resComplete.data.message || 'error'
+			infoValue = resComplete.data.message || 'error';
+			infoLoading = false;
 			return;
 		}
 
@@ -64,6 +68,7 @@
 
 	const getDecryptedJob = async () => {
 		return new Promise(async (resolve, reject) => {
+
 			// get job details
 			const resJob = await axios
 				.post(appConfig.nerves.job.get.url, {
@@ -73,7 +78,8 @@
 			
 			if(!resJob.data.job  || !resJob.data.success) {
 				infoType = 'error';
-				infoValue = resJob.data.message || 'error'
+				infoValue = resJob.data.message || 'error';
+				infoLoading = false;
 				reject(e);
 				return;
 			};
@@ -94,12 +100,14 @@
 			if( !resSharedKey || !resSharedKey.data.success) {
 				infoType = 'error';
 				infoValue = resSharedKey.data.message || 'error';
+				infoLoading = false;
 				reject(e);
 				return;
 			}
 
 			infoType = 'info';
 			infoValue = resSharedKey.data.message;
+			infoLoading = true;
 
 			console.log(keypair, resSharedKey.data.keypair);
 
@@ -116,6 +124,9 @@
 
 			const message = JSON.parse(decryptedJob.message);
 			console.log({message})
+
+			infoValue = '';
+			infoLoading = false;
 			resolve(message);
 		})
 	}
@@ -127,9 +138,9 @@
 <Header title="Verify" />
 
 <div>
-	<Info type={infoType} value={infoValue} />
-	{#await decryptedJobPromise }
-	{:then decryptedJob }
+	<Info type={infoType} value={infoValue} loading={infoLoading} />
+	{#await decryptedJobPromise}
+		{:then decryptedJob }
 		<div>
 			<h3>Job #{jobId}</h3>
 			<Identity identity={decryptedJob} />
