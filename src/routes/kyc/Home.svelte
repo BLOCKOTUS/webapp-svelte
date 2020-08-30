@@ -12,7 +12,7 @@
     <Header title="KYC" />
     <a href="/home" use:link><Button label="BLOCKOTUS Home" /></a>
     <a href="/kyc/getverified" use:link><Button label="Get verified" /></a>
-    <a href="/kyc/verify" use:link><Button label="Verify" /></a>
+    <a href="/kyc/jobs" use:link><Button label="Verify" /></a>
 </div>
     
 <style>

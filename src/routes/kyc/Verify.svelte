@@ -2,64 +2,154 @@
 	// external components
 	import { push } from 'svelte-spa-router';
 	import { Crypt } from 'hybrid-crypto-js';
+	import axios from 'axios';
 
 	// internal components
+	import appConfig from '@@Config/app';
 	import GoBack from '@@Components/GoBack.svelte';
 	import Button from '@@Components/Button.svelte';
 	import Approve from '@@Components/Approve.svelte';
 	import Refuse from '@@Components/Refuse.svelte';
+	import Info from '@@Components/Info.svelte';
+	import Header from '@@Components/Header.svelte';
+	import { users } from "@@Stores/users.js";
+import { get } from 'svelte/store';
 
 	// props attached when starting a job
 	export let params = {}
 
-	const onClickVerify = i => push(`/kyc/verify/${i}`);
+	const username = $users.loggedInUser;
+	const wallet = $users.users.filter(u => u.username === username)[0].wallet;
+	const keypair = $users.users.filter(u => u.username === username)[0].keypair;
+	const id = $users.users.filter(u => u.username === username)[0].id;
+
+	$: infoType = '';
+	$: infoValue = '';
 
 	// mock
-	const onClickApprove = i => console.log(`Approve ${i}`); // must communiacte with the Job module and the Identity Module
-	const onClickRefuse = i => console.log(`Refuse ${i}`); // must communiacte with the Job module
-	
-	var crypt = new Crypt();
-	// var verificator = user;
-	const decryptedJob = params.jobId !== null ? crypt.decrypt(verificator.privateKey, job.get(params.jobId).data) : null
-	const decryptedObject = decryptedJob !== null ? JSON.parse(decryptedJob.message) : {};
+	const onClickApproveRefuse = async (i, result) => {
+		console.log(`Approve ${i}`);
 
-	const list = [];
+		infoType = 'info';
+		infoValue = 'Submiting result...';
+
+		const resComplete = await axios.post(appConfig.nerves.job.complete.url, {
+			jobId,
+			result,
+			user: {username, wallet}
+		}).catch(e => {
+			infoType = 'error';
+			infoValue = resComplete.data.message || 'error'
+			return;
+		})
+
+		if(!resComplete || !resComplete.data.success){
+			infoType = 'error';
+			infoValue = resComplete.data.message || 'error'
+			return;
+		}
+
+		infoType = 'info';
+		infoValue = 'Job complete. You will be redirected to the job list.';
+		setTimeout(() => push('/kyc/jobs'), 1500);
+
+	}
+
+	const onClickRefuse = i => console.log(`Refuse ${i}`); // must communiacte with the Job module
+
+	// get job id
+	const rawJobList = localStorage.getItem('job.list.pending');
+	const jobList = JSON.parse(rawJobList);
+	const jobId = jobList[params.jobId].jobId;
+
+	const getDecryptedJob = async () => {
+		return new Promise(async (resolve, reject) => {
+			// get job details
+			const resJob = await axios
+				.post(appConfig.nerves.job.get.url, {
+					jobId,
+					user: {username, wallet}
+				})
+			
+			if(!resJob.data.job  || !resJob.data.success) {
+				infoType = 'error';
+				infoValue = resJob.data.message || 'error'
+				reject(e);
+				return;
+			};
+
+			const job = resJob.data.job;
+			console.log({job})
+			infoType = 'info';
+			infoValue = resJob.data.message;
+			
+			// get shared keypairs
+			const keypairId = `job||${job.creator}||${jobId}`;
+			const resSharedKey =  await axios
+				.post(appConfig.nerves.user.keypair.get.url, {
+					keypairId,
+					user: {username, wallet}
+				})
+
+			if( !resSharedKey || !resSharedKey.data.success) {
+				infoType = 'error';
+				infoValue = resSharedKey.data.message || 'error';
+				reject(e);
+				return;
+			}
+
+			infoType = 'info';
+			infoValue = resSharedKey.data.message;
+
+			console.log(keypair, resSharedKey.data.keypair);
+
+			const crypt = new Crypt();
+
+			const rawSharedKeypair = crypt.decrypt(keypair.privateKey, JSON.stringify(resSharedKey.data.keypair));
+			console.log({rawSharedKeypair})
+
+			const sharedKeypair = JSON.parse(rawSharedKeypair.message)
+			console.log({sharedKeypair})
+
+			const decryptedJob = crypt.decrypt(sharedKeypair.privateKey, job.data);
+			console.log({decryptedJob})
+
+			const message = JSON.parse(decryptedJob.message);
+			console.log({message})
+			resolve(message);
+		})
+	}
+
+	let decryptedJobPromise = getDecryptedJob();
+
 </script>
 
+<Header title="Verify" />
+
 <div>
-{#if params.jobId === null}
-	<table>
-		{#each list as job, i}
-			<tr>
-				<td>{job.id}</td>
-				<td>{job.status}</td>
-				<td><Button label="verify" onclick={() => onClickVerify(job.id)}></Button></td>
-			</tr>
-		{/each}
-	</table>
-{:else}
-	<div>
-		<h3>Job #{params.jobId}</h3>
-		<table>
-			<tr><td>Firstname</td><td>{decryptedObject.firstname}</td></tr>
-			<tr><td>Surname</td><td>{decryptedObject.surname}</td></tr>
-			<tr><td>Lastname</td><td>{decryptedObject.lastname}</td></tr>
-			<tr><td>Nation</td><td>{decryptedObject.nation}</td></tr>
-			<tr><td>National Id</td><td>{decryptedObject.nationalId}</td></tr>
-			<tr><td>Birthdate</td><td>{decryptedObject.birthdate}</td></tr>
-			<tr><td>Address</td><td>{JSON.stringify(decryptedObject.address)}</td></tr>
-		</table>
-		<div>Documentation 1</div>
-		<div>Documentation 2</div>
-	</div>
-	<div class="refuse_approve_button">
-		<Approve label="Approve" onclick={() => onClickApprove(params.jobId)}></Approve>
-		<Refuse label="Refuse" onclick={() => onClickRefuse(params.jobId)}></Refuse>
-	</div>
-{/if}
-<GoBack />
+	<Info type={infoType} value={infoValue} />
+	{#await decryptedJobPromise }
+	{:then decryptedJob }
+		<div>
+			<h3>Job #{jobId}</h3>
+			<table>
+				<tr><td>Firstname</td><td>{decryptedJob.firstname}</td></tr>
+				<tr><td>Lastname</td><td>{decryptedJob.lastname}</td></tr>
+				<tr><td>Nation</td><td>{decryptedJob.nation}</td></tr>
+				<tr><td>National Id</td><td>{decryptedJob.nationalId}</td></tr>
+			</table>
+			<div>Documentation 1</div>
+			<div>Documentation 2</div>
+		</div>
+		<div class="refuse_approve_button">
+			<Approve label="Approve" onclick={() => onClickApproveRefuse(jobId, 1)}></Approve>
+			<Refuse label="Refuse" onclick={() => onClickApproveRefuse(jobId, 0)}></Refuse>
+		</div>
+	{/await}
 </div>
-    
+
+<GoBack />
+
 <style>
 	* {
 		box-sizing: border-box;
@@ -120,7 +210,7 @@
 	}
 	
 	tr:hover {
-		background-color: #ffb299; /* Change the hover background-color of rows here */
+		background-color: #e4f4d4; /* Change the hover background-color of rows here */
 	}
 	
 	/* Removing left and right border of rows for modern UIs */

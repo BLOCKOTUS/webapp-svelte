@@ -9,6 +9,7 @@
 	import GoBack from '@@Components/GoBack.svelte';
 	import Submit from '@@Components/Submit.svelte';
 	import Info from '@@Components/Info.svelte';
+	import Header from '@@Components/Header.svelte';
 	import { citizen } from "@@Stores/citizen.js";
 	import { users } from "@@Stores/users.js";
 
@@ -75,11 +76,14 @@
 		const { workersIds, jobId } = resJob.data;
 
 		// share the keypair with the workers
-		const myEncryptedKeyPair = crypt.encrypt(keypair.publicKey, keypairToShare);
+		const myEncryptedKeyPair = crypt.encrypt(keypair.publicKey, JSON.stringify(keypairToShare));
+		const decryptedKeypairRaw = crypt.decrypt(keypair.privateKey, myEncryptedKeyPair);
+		const decryptedKeypair = JSON.parse(decryptedKeypairRaw.message)
+		console.log({keypairToShare, myEncryptedKeyPair, decryptedKeypairRaw, decryptedKeypair})
 		const sharedWith = workersIds.reduce((acc, worker) => {
 			return {
 				...acc,
-				[worker._id]: {keyPair: crypt.encrypt(worker.publicKey, keypairToShare)}
+				[worker._id]: {keyPair: crypt.encrypt(worker.publicKey, JSON.stringify(keypairToShare))}
 			}
 		}, {});
 
@@ -98,13 +102,14 @@
 
 		if (!resKeypair) return;
 
-		infoType = 'info';
-		infoValue = 'Your identity have been successfully created. Wait for confirmations.';
 		$users.users.filter(u => u.username === username)[0].identity = {...$citizen};
+		infoType = 'info';
+		infoValue = 'Your identity have been successfully created. Wait for confirmations. You will be redirected to the job list.';
+		setTimeout(() => push('/'), 1500);
 	}
 </script>
 
-<h1>Get Verified</h1>
+<Header title="Get verified" />
 
 <form class="content">
 	<Info type={infoType} value={infoValue} />
@@ -119,10 +124,10 @@
 
 <style>
   .content {
-	padding-bottom: 3vw;
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
+		padding-bottom: 3vw;
+		width: 100%;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
   }
 </style>

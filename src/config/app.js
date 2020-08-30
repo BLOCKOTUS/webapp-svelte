@@ -9,6 +9,9 @@ export default {
     nerves: {
         user: {
             keypair: {
+                get: {
+                    url: 'http://localhost:3000/user/keypair/get'
+                },
                 url:  'http://localhost:3000/user/keypair'
             },
             url: 'http://localhost:3000/user'
@@ -17,6 +20,15 @@ export default {
             url: 'http://localhost:3000/identity'
         },
         job: {
+            list: {
+                url: 'http://localhost:3000/job/list'
+            },
+            get: {
+                url: 'http://localhost:3000/job/get'
+            },
+            complete: {
+                url: 'http://localhost:3000/job/complete'
+            },
             url: 'http://localhost:3000/job'
         }
     }
