@@ -15,16 +15,18 @@
 </div>
 
 <style>
-	.error-area {
-		background: #f7cfcf;
+	.error-area, .info-area {
 		width: 100%;
 		margin-bottom: 40px;
+		font-size: 30px;
+	}
+
+	.error-area {
+		background: #f7cfcf;
     }
     
     .info-area {
 		background: #ebf7eb;
-		width: 100%;
-		margin-bottom: 40px;
 	}
 
 	.loader,
@@ -33,6 +35,7 @@
 		width: 20px;
 		height: 20px;
 	}
+
 	.loader {
 		margin: 5px auto;
 		font-size: 10px;
@@ -48,6 +51,7 @@
 		-webkit-animation: load8 1.1s infinite linear;
 		animation: load8 1.1s infinite linear;
 	}
+
 	@-webkit-keyframes load8 {
 		0% {
 				-webkit-transform: rotate(0deg);
@@ -58,6 +62,7 @@
 				transform: rotate(360deg);
 		}
 	}
+	
 	@keyframes load8 {
 		0% {
 			-webkit-transform: rotate(0deg);

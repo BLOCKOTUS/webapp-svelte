@@ -68,8 +68,8 @@
 </script>
 
 <Header title="Register" />
+<Info value={infoValue} type={infoType} loading={infoLoading} />
 <form class="content">
-	<Info value={infoValue} type={infoType} loading={infoLoading} />
 	<input type="text" bind:value={$users.tmp.username} placeholder="Username" />
 	<Submit onclick={register} disabled={$users.tmp.username.length == 0} />
 </form>
