@@ -13,7 +13,7 @@
     $: infoType = '';
     
     $: submitIsDisabled = 
-        $users.tmp.wallet.length === 0
+        $users.tmp.username.length === 0
         || $users.tmp.keypair.length === 0
         || $users.tmp.wallet.length === 0
     

@@ -11,10 +11,7 @@
 </script>
 
 <Header title="Identity" />
-
-<div>
-	<Identity identity={loggedUser.identity} />
-</div>
+<Identity identity={loggedUser.identity} />
 
 <GoBack />
 

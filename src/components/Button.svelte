@@ -5,6 +5,10 @@
     export let onclick;
 </script>
 
+<div class="button">
+    <button on:click={onclick} disabled={disabled}>{label}</button>
+</div>
+
 <style>
     :global(.button button) {
         width: 42vw !important;
@@ -21,7 +25,3 @@
         transform: translateY(4px);
     }
 </style>
-
-<div class="button">
-    <button on:click={onclick} disabled={disabled}>{label}</button>
-</div>

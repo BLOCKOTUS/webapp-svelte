@@ -48,24 +48,22 @@
 </script>
 
 <Header title="Verify" />
+<Info type={infoType} value={infoValue} loading={infoLoading} />
 
-<div>
-	<Info type={infoType} value={infoValue} loading={infoLoading} />
-		<table>
-			<tr>
-				<th>Job ID</th>
-				<th>Status</th>
-				<th>Action</th>
-			</tr>
-			{#each list as job, i}
-				<tr>
-					<td>{job.jobId}</td>
-					<td>{job.status}</td>
-					<td><Button label="verify" onclick={() => onClickVerify(i)}></Button></td>
-				</tr>
-			{/each}
-		</table>
-</div>
+<table>
+	<tr>
+		<th>Job ID</th>
+		<th>Status</th>
+		<th>Action</th>
+	</tr>
+	{#each list as job, i}
+		<tr>
+			<td>{job.jobId}</td>
+			<td>{job.status}</td>
+			<td><Button label="verify" onclick={() => onClickVerify(i)}></Button></td>
+		</tr>
+	{/each}
+</table>
 
 <GoHome />
 

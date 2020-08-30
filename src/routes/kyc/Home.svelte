@@ -1,6 +1,6 @@
 <script>
 	// external components
-	import { link } from 'svelte-spa-router'
+	import { push } from 'svelte-spa-router'
 	
 	// internal components
 	import appConfig from '@@Config/app';
@@ -11,13 +11,12 @@
 	$: loggedUser = $users.users.filter(u => u.username === $users.loggedInUser)[0];
 </script>
 
-<div>
-    <Header title="KYC" />
-    <a href="/home" use:link><Button label="BLOCKOTUS Home" /></a>
-    <a href="/kyc/identity" use:link><Button label="My identity" disabled={!loggedUser.identity} /></a>
-    <a href="/kyc/getverified" use:link><Button label="Create identity" disabled={loggedUser.identity} /></a>
-    <a href="/kyc/jobs" use:link><Button label="Verify" /></a>
-</div>
+<Header title="KYC" />
+<Button label="BLOCKOTUS Home" onclick={() => push('/home')} />
+<Button label="My identity" onclick={() => push('/kyc/identity')} disabled={!loggedUser.identity} />
+<Button label="Create identity" onclick={() => push('/kyc/getverified')} disabled={loggedUser.identity} />
+<Button label="Verify" onclick={() => push('/kyc/jobs')} />
+
 <style>
 
 </style>

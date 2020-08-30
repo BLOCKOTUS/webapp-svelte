@@ -136,21 +136,19 @@
 </script>
 
 <Header title="Verify" />
+<Info type={infoType} value={infoValue} loading={infoLoading} />
 
-<div>
-	<Info type={infoType} value={infoValue} loading={infoLoading} />
-	{#await decryptedJobPromise}
-		{:then decryptedJob }
-		<div>
-			<h3>Job #{jobId}</h3>
-			<Identity identity={decryptedJob} />
-		</div>
-		<div class="refuse_approve_button">
-			<Approve label="Approve" onclick={() => onClickApproveRefuse(jobId, 1)}></Approve>
-			<Refuse label="Refuse" onclick={() => onClickApproveRefuse(jobId, 0)}></Refuse>
-		</div>
-	{/await}
-</div>
+{#await decryptedJobPromise}
+	{:then decryptedJob }
+	<div>
+		<h3>Job #{jobId}</h3>
+		<Identity identity={decryptedJob} />
+	</div>
+	<div class="refuse_approve_button">
+		<Approve label="Approve" onclick={() => onClickApproveRefuse(jobId, 1)}></Approve>
+		<Refuse label="Refuse" onclick={() => onClickApproveRefuse(jobId, 0)}></Refuse>
+	</div>
+{/await}
 
 <GoBack />
 
