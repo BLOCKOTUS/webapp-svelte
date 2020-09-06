@@ -10,6 +10,7 @@
 	import Header from '@@Components/Header.svelte';
 	import Info from '@@Components/Info.svelte';
 	import { users } from "@@Stores/users.js";
+	import { request } from "@@Modules/nerves";
 
 	$: infoValue = '';
 	$: infoType = '';
@@ -33,9 +34,13 @@
 		const keypair = await generateKeyPair();
 
 		// get wallet from the network
-		const res = await axios.post(appConfig.nerves.user.url, {
-			username: $users.tmp.username,
-			publicKey: keypair.publicKey
+		const res = await request({
+			method: 'POST',
+			url: appConfig.nerves.user.url,
+			data: {
+				username: $users.tmp.username,
+				publicKey: keypair.publicKey
+			}
 		}).catch(e => {
 			infoType = 'error';
 			infoValue = e.message;

@@ -14,6 +14,7 @@
 	import Header from '@@Components/Header.svelte';
 	import Identity from '@@Components/Identity.svelte';
 	import { users } from "@@Stores/users.js";
+	import { request } from '@@Modules/nerves'
 
 	// props attached when starting a job
 	export let params = {}
@@ -27,7 +28,6 @@
 	$: infoValue = '';
 	$: infoLoading = true;
 
-	// mock
 	const onClickApproveRefuse = async (i, result) => {
 		console.log(`Approve ${i}`);
 		
@@ -35,10 +35,15 @@
 		infoValue = 'Submiting result...';
 		infoLoading = true;
 
-		const resComplete = await axios.post(appConfig.nerves.job.complete.url, {
-			jobId,
-			result,
-			user: {username, wallet}
+		const resComplete = await request({
+			username,
+			wallet,
+			url: appConfig.nerves.job.complete.url,
+			method: 'POST',
+			data: {
+				jobId,
+				result
+			}
 		}).catch(e => {
 			infoType = 'error';
 			infoValue = resComplete.data.message || 'error';
@@ -70,11 +75,15 @@
 		return new Promise(async (resolve, reject) => {
 
 			// get job details
-			const resJob = await axios
-				.post(appConfig.nerves.job.get.url, {
+			const resJob = await request({
+				username,
+				wallet,
+				url: appConfig.nerves.job.get.url,
+				method: 'POST',
+				data: {
 					jobId,
-					user: {username, wallet}
-				})
+				}
+			})
 			
 			if(!resJob.data.job  || !resJob.data.success) {
 				infoType = 'error';
@@ -91,11 +100,15 @@
 			
 			// get shared keypairs
 			const keypairId = `job||${job.creator}||${jobId}`;
-			const resSharedKey =  await axios
-				.post(appConfig.nerves.user.keypair.get.url, {
+			const resSharedKey = await request({
+				username,
+				wallet,
+				url: appConfig.nerves.user.keypair.get.url,
+				method: 'POST',
+				data: {
 					keypairId,
-					user: {username, wallet}
-				})
+				}
+			})
 
 			if( !resSharedKey || !resSharedKey.data.success) {
 				infoType = 'error';

@@ -13,6 +13,7 @@
 	import Info from '@@Components/Info.svelte';
 	import Header from '@@Components/Header.svelte';
 	import { users } from "@@Stores/users.js";
+	import { request } from '@@Modules/nerves'
 
 	const username = $users.loggedInUser;
 	const wallet = $users.users.filter(u => u.username === username)[0].wallet;
@@ -26,11 +27,15 @@
 
 	const onClickVerify = i => push(`/kyc/verify/${i}`);
 
-	axios
-		.post(appConfig.nerves.job.list.url, {
+	request({
+		username,
+		wallet,
+		url: appConfig.nerves.job.list.url,
+		method: 'POST',
+		data: {
 			status: 'pending',
-			user: {username, wallet}
-		})
+		}
+	})
 		.catch(e => {
 			infoType = 'error';
 			infoValue = e.message;
