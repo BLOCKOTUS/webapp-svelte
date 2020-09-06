@@ -855,10 +855,10 @@ has-values@^1.0.0:
     is-number "^3.0.0"
     kind-of "^4.0.0"
 
-hybrid-crypto-js@^0.2.2:
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/hybrid-crypto-js/-/hybrid-crypto-js-0.2.2.tgz#49b6924cdd20f6e21258c32781086247c51d7abf"
-  integrity sha512-HJShvXNluoaDEYSeNlsfNaSZLYq/9monkTbKsReoMEh5AAmT2sC8NDQUM6JnjepT4MhhIR4AGmSLLJAVs2u4sA==
+hybrid-crypto-js@^0.2.3:
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/hybrid-crypto-js/-/hybrid-crypto-js-0.2.3.tgz#a81cb8bf0b67a82e0797d46431658b69fb6e7ee9"
+  integrity sha512-46L7kQT/xvXMUX2Zng6aENOl2tQQJafQdsl5YCq49kiilbu3ZFGf4gmAOsy8rtXPC825v6iXoIv4eV77jo0fPg==
   dependencies:
     node-forge "^0.8.5"
 

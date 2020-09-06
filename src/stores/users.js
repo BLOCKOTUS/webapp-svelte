@@ -8,7 +8,7 @@ const setupUsers =
   users: [],
   tmp: {
     wallet: '',
-    keypair: '',
+    keypair: {},
     username: ''
   }
 }

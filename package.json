@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
-    "hybrid-crypto-js": "^0.2.2",
+    "hybrid-crypto-js": "^0.2.3",
     "sirv-cli": "^0.4.4",
     "svelte-spa-router": "^2.1.0"
   }
