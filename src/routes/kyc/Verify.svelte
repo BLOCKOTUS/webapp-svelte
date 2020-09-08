@@ -79,8 +79,8 @@
 				username,
 				wallet,
 				url: appConfig.nerves.job.get.url,
-				method: 'POST',
-				data: {
+				method: 'GET',
+				params: {
 					jobId,
 				}
 			})
@@ -104,8 +104,8 @@
 				username,
 				wallet,
 				url: appConfig.nerves.user.keypair.get.url,
-				method: 'POST',
-				data: {
+				method: 'GET',
+				params: {
 					keypairId,
 				}
 			})

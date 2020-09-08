@@ -31,8 +31,8 @@
 		username,
 		wallet,
 		url: appConfig.nerves.job.list.url,
-		method: 'POST',
-		data: {
+		method: 'GET',
+		params: {
 			status: 'pending',
 		}
 	})

@@ -5,11 +5,13 @@ export const request = ({
     wallet = '',
     method,
     url,
-    data = {}
+    data = {},
+    params = {},
 }) => {
     const options = {
         url,
         data,
+        params: params,
         method,
         headers: {
             'Authorization': `Basic ${btoa(`${username}:${JSON.stringify(wallet)}`)}`
