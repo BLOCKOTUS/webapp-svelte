@@ -78,7 +78,7 @@
 			const resJob = await request({
 				username,
 				wallet,
-				url: appConfig.nerves.job.get.url,
+				url: appConfig.nerves.job.url,
 				method: 'GET',
 				params: {
 					jobId,
@@ -103,7 +103,7 @@
 			const resSharedKey = await request({
 				username,
 				wallet,
-				url: appConfig.nerves.user.keypair.get.url,
+				url: appConfig.nerves.user.keypair.url,
 				method: 'GET',
 				params: {
 					keypairId,
