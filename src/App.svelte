@@ -10,14 +10,12 @@
 	// routes
 	import Home from '@@Routes/Home.svelte';
 	import { KYCRoutes } from '@@Routes/kyc/routes';
-	import { RegisterRoutes } from '@@Routes/register/routes';
-	import { LoginRoutes } from '@@Routes/login/routes';
+	import { AccountRoutes } from '@@Routes/account/routes';
 
 	const routes = {
 		'/': Home,
 		...KYCRoutes,
-		...RegisterRoutes,
-		...LoginRoutes,
+		...AccountRoutes,
 		'*': Home,
 	}
 

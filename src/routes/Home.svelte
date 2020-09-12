@@ -12,9 +12,9 @@
 </script>
 
 <Header title={appConfig.title} />
-<Button label="Register" onclick={() => push('/register/username')} />
-<Button label="Login" onclick={() => push('/login/wallet')} />
-<Button label="Manage accounts" onclick={() => push('/login/accounts')} disabled />
+<Button label="Register" onclick={() => push('/account/register')} />
+<Button label="Login" onclick={() => push('/account/login')} />
+<Button label="Manage accounts" onclick={() => push('/account/manage')} />
 <Button label="KYC" onclick={() => push('/kyc/home')} disabled={!loggedUser} />
     
 <style>
