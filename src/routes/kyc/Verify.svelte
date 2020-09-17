@@ -27,6 +27,7 @@
 	$: infoType = '';
 	$: infoValue = '';
 	$: infoLoading = true;
+	$: decryptedOriginalIdentity = {};
 
 	const onClickApproveRefuse = async (i, result) => {
 		console.log(`Approve ${i}`);
@@ -89,7 +90,7 @@
 				infoType = 'error';
 				infoValue = resJob.data.message || 'error';
 				infoLoading = false;
-				reject(e);
+				reject();
 				return;
 			};
 
@@ -114,7 +115,7 @@
 				infoType = 'error';
 				infoValue = resSharedKey.data.message || 'error';
 				infoLoading = false;
-				reject(e);
+				reject();
 				return;
 			}
 
@@ -137,6 +138,30 @@
 
 			const message = JSON.parse(decryptedJob.message);
 			console.log({message})
+			
+			// get originalData
+			const resOriginalData = await request({
+				username,
+				wallet,
+				url: appConfig.nerves.identity.url,
+				method: 'GET',
+				params: {
+					identityId: job.creator
+				}
+			})
+
+			if( !resOriginalData || !resOriginalData.data.success) {
+				infoType = 'error';
+				infoValue = resOriginalData.data.message || 'error';
+				infoLoading = false;
+				reject();
+				return;
+			}
+
+			console.log({resOriginalData})
+			const decryptedOriginal = crypt.decrypt(sharedKeypair.privateKey, resOriginalData.data.identity.encryptedIdentity);
+			decryptedOriginalIdentity = JSON.parse(decryptedOriginal.message);
+			console.log({decryptedOriginalIdentity})
 
 			infoValue = '';
 			infoLoading = false;
@@ -144,7 +169,7 @@
 		})
 	}
 
-	let decryptedJobPromise = getDecryptedJob();
+	const decryptedJobPromise = getDecryptedJob();
 
 </script>
 
@@ -153,9 +178,21 @@
 
 {#await decryptedJobPromise}
 	{:then decryptedJob }
-	<div>
-		<h3>Job #{jobId}</h3>
-		<Identity identity={decryptedJob} />
+  <div>
+		<table>
+			<tr>
+				<th>Job</th>
+				<th>Original</th>
+			</tr>
+			<tr>
+				<td>
+					<Identity identity={decryptedJob} />
+				</td>
+				<td>
+					<Identity identity={decryptedOriginalIdentity} />
+				</td>
+			</tr>
+		</table>
 	</div>
 	<div class="refuse_approve_button">
 		<Approve label="Approve" onclick={() => onClickApproveRefuse(jobId, 1)}></Approve>
@@ -166,6 +203,12 @@
 <GoBack />
 
 <style>
+  table {
+    width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
 	.refuse_approve_button {
 		display: flex;
 		flex-direction: row;
