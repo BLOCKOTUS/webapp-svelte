@@ -25,8 +25,11 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
-    "hybrid-crypto-js": "^0.2.3",
+    "hybrid-crypto-js": "^0.2.4",
     "sirv-cli": "^0.4.4",
     "svelte-spa-router": "^2.1.0"
+  },
+  "resolutions": {
+    "node-forge": "^0.10.0"
   }
 }
