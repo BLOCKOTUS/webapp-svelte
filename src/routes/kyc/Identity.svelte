@@ -16,6 +16,7 @@
 	$: infoValue = 'Loading your identity...';
 	$: infoLoading = true;
 	$: identity = false;
+	$: resIdentity = {};
 
 	const username = $users.loggedInUser;
 	const wallet = $users.users.filter(u => u.username === username)[0].wallet;
@@ -44,7 +45,8 @@
 					return;
 				}
 
-				var encryptedIdentity = resId.data.identity.encryptedIdentity;
+				resIdentity = resId.data.identity;
+				var encryptedIdentity = resIdentity.encryptedIdentity;
 
 				// get job Id
 				infoValue = 'Requesting the jobId used when creating your identity...';
@@ -103,7 +105,11 @@
 <Header title="Identity" />
 <Info type={infoType} value={infoValue} loading={infoLoading} />
 {#if identity}
-	<Identity identity={identity} />
+	<Identity 
+		identity={identity}
+		kyc={resIdentity.kyc}
+		confirmations={resIdentity.confirmations}
+	/>
 {/if}
 
 <GoBack />

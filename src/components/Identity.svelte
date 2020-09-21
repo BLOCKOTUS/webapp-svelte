@@ -1,5 +1,7 @@
 <script>
-    export let identity;
+	export let identity;
+	export let kyc;
+	export let confirmations;
 </script>
 
 <table>
@@ -7,6 +9,8 @@
     <tr><td>Lastname</td><td>{identity.lastname}</td></tr>
     <tr><td>Nation</td><td>{identity.nation}</td></tr>
     <tr><td>National Id</td><td>{identity.nationalId}</td></tr>
+    <tr><td>KYC</td><td>{kyc}</td></tr>
+    <tr><td>Confirmations</td><td>{confirmations[0]}/{confirmations[1]}</td></tr>
 </table>
 <div>Documentation 1</div>
 <div>Documentation 2</div>

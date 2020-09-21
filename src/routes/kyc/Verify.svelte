@@ -27,7 +27,8 @@
 	$: infoType = '';
 	$: infoValue = '';
 	$: infoLoading = true;
-	$: decryptedOriginalIdentity = {};
+  $: decryptedOriginalIdentity = {};
+  $: resOriginalData = {};
 
 	const onClickApproveRefuse = async (i, result) => {
 		console.log(`Approve ${i}`);
@@ -140,7 +141,7 @@
 			console.log({message})
 			
 			// get originalData
-			const resOriginalData = await request({
+			resOriginalData = await request({
 				username,
 				wallet,
 				url: appConfig.nerves.identity.url,
@@ -170,14 +171,13 @@
 	}
 
 	const decryptedJobPromise = getDecryptedJob();
-
 </script>
 
 <Header title="Verify" />
 <Info type={infoType} value={infoValue} loading={infoLoading} />
 
 {#await decryptedJobPromise}
-	{:then decryptedJob }
+{:then decryptedJob }
   <div>
 		<table>
 			<tr>
@@ -186,10 +186,18 @@
 			</tr>
 			<tr>
 				<td>
-					<Identity identity={decryptedJob} />
+          <Identity 
+            identity={decryptedJob}
+            kyc={resOriginalData.data.identity.kyc}
+            confirmations={resOriginalData.data.identity.confirmations}
+          />
 				</td>
 				<td>
-					<Identity identity={decryptedOriginalIdentity} />
+					<Identity 
+						identity={decryptedOriginalIdentity}
+						kyc={resOriginalData.data.identity.kyc}
+						confirmations={resOriginalData.data.identity.confirmations}
+					/>
 				</td>
 			</tr>
 		</table>
