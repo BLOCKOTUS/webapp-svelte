@@ -29,6 +29,8 @@
 		e.preventDefault();
 
 		infoLoading = true;
+		infoValue = '';
+		infoType = 'info';
 
 		// generate keypair
 		const keypair = await generateKeyPair();
@@ -53,6 +55,7 @@
 		infoType = success ? 'info' : 'error';
 		infoValue = message;
 		infoLoading = false;
+		if (!success) return;
 
 		const user = {
 			username: $users.tmp.username,

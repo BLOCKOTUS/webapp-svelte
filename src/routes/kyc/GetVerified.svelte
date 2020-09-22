@@ -59,8 +59,13 @@
 				infoValue = e.message;
 				infoLoading = false;
 			})
-
-		if (!resIdentity) return;
+		
+		if (!resIdentity || !resIdentity.data.success) {
+			infoType = 'error';
+			infoValue = resIdentity.data.message;
+			infoLoading = false;
+			return;
+		};
 
 		infoType = 'info';
 		infoValue = resIdentity.data.message;
@@ -80,7 +85,12 @@
 				infoLoading = false;
 			})
 
-		if (!resJob) return;
+		if (!resJob || !resJob.data.success) {
+			infoType = 'error';
+			infoValue = resJob.data.message;
+			infoLoading = false;
+			return;
+		}
 
 		infoType = 'info';
 		infoValue = resJob.data.message;
@@ -110,9 +120,15 @@
 			.catch(e => {
 				infoType = 'error';
 				infoValue = e.message
+				infoLoading = false;
 			})
 
-		if (!resKeypair) return;
+		if (!resKeypair || !resKeypair.data.success) {
+			infoType = 'error';
+			infoValue = resKeypair.data.message
+			infoLoading = false;
+			return;
+		}
 
 		$users.users.filter(u => u.username === username)[0].identity = {...$citizen};
 		infoType = 'info';
