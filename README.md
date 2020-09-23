@@ -1,8 +1,42 @@
-# Organism webapp
+# BLOCKOTUS Webapp
 
-![preview](https://github.com/BLOCKOTUS/app_kyc/blob/master/README_img.png)
+![preview](https://github.com/BLOCKOTUS/webapp/blob/master/README_img.png)
+
+## Abstract
+
+This repository is part of the BLOCKOTUS Organism (https://github.com/BLOCKOTUS/organism).
 
 ## Features
 
-- Register / multi-accounts login
-- KYC
+- Register user
+- Support multi-accounts
+- Create an identity
+- Get your identity verified by other users
+- Verify identities of other users
+
+## Usage
+
+### Development
+
+```bash
+$ yarn dev
+```
+Then visit http://localhost:5000
+
+### How to contribute
+Fork and submit a pull-request.
+
+### How to use it for your own project
+Clone or download the repository. Modify at your convenience.
+
+In an ideal world, you will conserve the same license, and give credits to the author [@danielfebrero](https://github.com/danielfebrero).
+
+## Screenshots 
+![preview](https://github.com/BLOCKOTUS/webapp/blob/master/README_img_2.png)
+-
+![preview](https://github.com/BLOCKOTUS/webapp/blob/master/README_img_3.png)
+-
+![preview](https://github.com/BLOCKOTUS/webapp/blob/master/README_img_4.png)
+-
+![preview](https://github.com/BLOCKOTUS/webapp/blob/master/README_img_5.png)
+-
