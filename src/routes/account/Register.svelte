@@ -71,8 +71,6 @@
 		$users.loggedInUser = $users.tmp.username;
 		$users.tmp.username = '';
 	}
-
-	$users.tmp.username = '';
 </script>
 
 <Header title="Register" />
