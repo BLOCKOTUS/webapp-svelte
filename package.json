@@ -1,11 +1,17 @@
 {
-  "name": "app_kyc",
-  "version": "1.0.0",
+  "name": "blockotus-webapp",
+  "version": "0.1.3-beta",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "start": "sirv public"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/blockotus/webapp.git"
+  },
+  "author": "Daniel Febrero",
+  "license": "AGPL-3.0",
   "devDependencies": {
     "@babel/cli": "^7.10.5",
     "@babel/core": "^7.10.5",
