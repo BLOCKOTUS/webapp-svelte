@@ -9,7 +9,7 @@
 	import Identity from '@@Components/Identity.svelte';
 	import Info from '@@Components/Info.svelte';
 	import { users } from "@@Stores/users.js";
-	import { request } from '@@Modules/nerves'
+	import { request } from '@@Modules/nerves';
 
 	$: loggedUser = $users.users.filter(u => u.username === $users.loggedInUser)[0];
 	$: infoType = 'info';
@@ -57,9 +57,9 @@
 					method: 'GET',
 					params: {
 						chaincode: 'identity',
-						key: id
-					}
-				})
+						key: id,
+					},
+				});
 
 				if( !resJobId || !resJobId.data.success) {
 					infoType = 'error';
@@ -80,8 +80,8 @@
 					method: 'GET',
 					params: {
 						keypairId,
-					}
-				})
+					},
+				});
 
 				if( !resSharedKey || !resSharedKey.data.success) {
 					infoType = 'error';
@@ -91,7 +91,7 @@
 				}
 
 				const rawSharedKeypair = crypt.decrypt(keypair.privateKey, JSON.stringify(resSharedKey.data.keypair));
-				const sharedKeypair = JSON.parse(rawSharedKeypair.message)
+				const sharedKeypair = JSON.parse(rawSharedKeypair.message);
 
 				var decryptedIdentity = crypt.decrypt(sharedKeypair.privateKey, encryptedIdentity);
 				infoLoading = false;
@@ -99,7 +99,7 @@
 
 				identity = JSON.parse(decryptedIdentity.message);
 			}
-		})
+		});
 </script>
 
 <Header title="Identity" />

@@ -4,7 +4,8 @@
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
-    "start": "sirv public"
+    "start": "sirv public",
+    "lint": "eslint src/"
   },
   "repository": {
     "type": "git",
@@ -16,12 +17,20 @@
     "@babel/cli": "^7.10.5",
     "@babel/core": "^7.10.5",
     "@babel/preset-flow": "^7.10.4",
+    "@rbnlffl/rollup-plugin-eslint": "^1.1.2",
     "@rollup/plugin-alias": "^3.1.1",
     "@rollup/plugin-babel": "^5.1.0",
     "@rollup/plugin-commonjs": "^11.0.0",
     "@rollup/plugin-json": "^4.0.3",
     "@rollup/plugin-node-resolve": "^7.0.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "7.2.0",
+    "eslint-import-resolver-alias": "^1.1.2",
+    "eslint-plugin-flowtype": "^5.2.0",
+    "eslint-plugin-import": "^2.21.2",
+    "eslint-plugin-svelte3": "^2.7.3",
     "flow-bin": "^0.129.0",
+    "husky": "^4.3.0",
     "jsrsasign": "^8.0.13",
     "rollup": "^1.20.0",
     "rollup-plugin-livereload": "^1.0.0",
@@ -37,5 +46,10 @@
   },
   "resolutions": {
     "node-forge": "^0.10.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "yarn run lint"
+    }
   }
 }

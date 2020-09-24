@@ -1,8 +1,5 @@
 <script>
-	// external components
-
-	// internal components
-	import { users } from "@@Stores/users.js";
+	import { users } from '@@Stores/users.js';
 	import Account from '@@Components/Account.svelte';
 	import GoBack from '@@Components/GoBack.svelte';
 	import Header from '@@Components/Header.svelte';

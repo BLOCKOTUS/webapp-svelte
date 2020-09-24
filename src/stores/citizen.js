@@ -14,5 +14,5 @@ export const citizen = writable({
       country: "",
   },
   documentation1: null,
-  documentation2: null
-})
+  documentation2: null,
+});

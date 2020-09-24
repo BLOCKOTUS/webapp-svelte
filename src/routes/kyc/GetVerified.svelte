@@ -1,8 +1,8 @@
 <script>
 	// external components
 	import { RSA, Crypt } from 'hybrid-crypto-js';
-	import { push } from 'svelte-spa-router'
-	import axios from 'axios'
+	import { push } from 'svelte-spa-router';
+	import axios from 'axios';
 
 	// internal components
 	import appConfig from '@@Config/app';
@@ -29,13 +29,12 @@
 		|| $citizen.lastname.length === 0
 		|| $citizen.nation.length === 0
 		|| $citizen.nationalId.length === 0;
-		 
 
 	const generateKeyPair = () => {
 		return new Promise((resolve) => {
 			rsa.generateKeyPair(resolve);
-		})
-	}
+		});
+	};
 	
 	const createIdentity = async (e) => {
 		e.preventDefault();
@@ -52,20 +51,20 @@
 		const resIdentity = await axios
 			.post(appConfig.nerves.identity.url, {
 				encryptedIdentity,
-				user: {username, wallet}
+				user: { username, wallet },
 			})
 			.catch(e => {
 				infoType = 'error';
 				infoValue = e.message;
 				infoLoading = false;
-			})
+			});
 		
 		if (!resIdentity || !resIdentity.data.success) {
 			infoType = 'error';
 			infoValue = resIdentity.data.message;
 			infoLoading = false;
 			return;
-		};
+		}
 
 		infoType = 'info';
 		infoValue = resIdentity.data.message;
@@ -77,13 +76,13 @@
 				data: encryptedIdentity,
 				chaincode: 'identity',
 				key: id,
-				user: {username, wallet}
+				user: { username, wallet },
 			})
 			.catch(e => {
 				infoType = 'error';
 				infoValue = e.message;
 				infoLoading = false;
-			})
+			});
 
 		if (!resJob || !resJob.data.success) {
 			infoType = 'error';
@@ -100,14 +99,17 @@
 		// share the keypair with the workers
 		const myEncryptedKeyPair = crypt.encrypt(keypair.publicKey, JSON.stringify(keypairToShare));
 		const decryptedKeypairRaw = crypt.decrypt(keypair.privateKey, myEncryptedKeyPair);
-		const decryptedKeypair = JSON.parse(decryptedKeypairRaw.message)
-		console.log({keypairToShare, myEncryptedKeyPair, decryptedKeypairRaw, decryptedKeypair})
-		const sharedWith = workersIds.reduce((acc, worker) => {
-			return {
-				...acc,
-				[worker._id]: {keyPair: crypt.encrypt(worker.publicKey, JSON.stringify(keypairToShare))}
-			}
-		}, {});
+		const decryptedKeypair = JSON.parse(decryptedKeypairRaw.message);
+		console.log({keypairToShare, myEncryptedKeyPair, decryptedKeypairRaw, decryptedKeypair});
+		const sharedWith = workersIds.reduce(
+      (acc, worker) => {
+        return ({
+          ...acc,
+          [worker._id]: {keyPair: crypt.encrypt(worker.publicKey, JSON.stringify(keypairToShare))},
+        });
+      },
+      {},
+    );
 
 		const resKeypair = await axios
 			.post(appConfig.nerves.user.keypair.url, {
@@ -115,17 +117,17 @@
 				groupId: jobId,
 				myEncryptedKeyPair,
 				type: 'job',
-				user: {username, wallet}
+				user: { username, wallet },
 			})
 			.catch(e => {
 				infoType = 'error';
-				infoValue = e.message
+				infoValue = e.message;
 				infoLoading = false;
-			})
+			});
 
 		if (!resKeypair || !resKeypair.data.success) {
 			infoType = 'error';
-			infoValue = resKeypair.data.message
+			infoValue = resKeypair.data.message;
 			infoLoading = false;
 			return;
 		}
@@ -134,7 +136,7 @@
 		infoType = 'info';
 		infoValue = 'Your identity have been successfully created. Wait for confirmations. You will be redirected.';
 		setTimeout(() => push('/'), 1500);
-	}
+	};
 </script>
 
 <Header title="Get verified" />

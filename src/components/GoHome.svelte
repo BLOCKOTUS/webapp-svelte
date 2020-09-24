@@ -1,6 +1,6 @@
 <script>
 	// external components
-    import { push } from 'svelte-spa-router'
+    import { push } from 'svelte-spa-router';
 
     // internal components
     import Button from '@@Components/Button.svelte';

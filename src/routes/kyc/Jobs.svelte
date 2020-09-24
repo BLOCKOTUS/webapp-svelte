@@ -1,24 +1,18 @@
 <script>
 	// external components
 	import { push } from 'svelte-spa-router';
-	import { Crypt } from 'hybrid-crypto-js';
-	import axios from 'axios';
 
 	// internal components
 	import appConfig from '@@Config/app';
 	import GoHome from '@@Components/GoHome.svelte';
 	import Button from '@@Components/Button.svelte';
-	import Approve from '@@Components/Approve.svelte';
-	import Refuse from '@@Components/Refuse.svelte';
 	import Info from '@@Components/Info.svelte';
 	import Header from '@@Components/Header.svelte';
 	import { users } from "@@Stores/users.js";
-	import { request } from '@@Modules/nerves'
+	import { request } from '@@Modules/nerves';
 
 	const username = $users.loggedInUser;
 	const wallet = $users.users.filter(u => u.username === username)[0].wallet;
-	const keypair = $users.users.filter(u => u.username === username)[0].keypair;
-	const id = $users.users.filter(u => u.username === username)[0].id;
 
 	$: list = [];
 	$: infoType = '';
@@ -34,7 +28,7 @@
 		method: 'GET',
 		params: {
 			status: 'pending',
-		}
+		},
 	})
 		.catch(e => {
 			infoType = 'error';
@@ -48,7 +42,7 @@
 				if (list.length === 0) infoValue = 'You have no jobs assigned.';
 				infoLoading = false;
 			}
-		})
+		});
 
 </script>
 
@@ -75,13 +69,6 @@
 <style>
 	* {
 		box-sizing: border-box;
-	}
-	
-	.refuse_approve_button {
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		margin-top: 50px;
 	}
 
 	table {

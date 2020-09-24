@@ -3,7 +3,6 @@
 	import { Crypt } from 'hybrid-crypto-js';
 
 	// internal components
-    import appConfig from '@@Config/app';
     import GoBack from '@@Components/GoBack.svelte';
     import Header from '@@Components/Header.svelte';
     import Submit from '@@Components/Submit.svelte';
@@ -18,7 +17,7 @@
     $: submitIsDisabled = 
         $users.tmp.username.length === 0
         || $users.tmp.keypair.length === 0
-        || $users.tmp.wallet.length === 0
+        || $users.tmp.wallet.length === 0;
     
 
     const validateKeypair = (keypair) => {
@@ -32,14 +31,14 @@
             const decrypted = crypt.decrypt(keypair.privateKey, encrypted);
             decrypted.message === message ? resolve() : reject();
             return;
-        })
-    }
+        });
+    };
 
     const login = (e) => {
         e.preventDefault();
 
         validateKeypair($users.tmp.keypair)
-            .catch(e => {
+            .catch(_e => {
                 infoValue = `Keypair is invalid.`;
                 infoType = 'error';
                 return;
@@ -64,9 +63,7 @@
         infoType = 'info';
 
         return;
-    }
-
-    
+    };
 
 </script>
 

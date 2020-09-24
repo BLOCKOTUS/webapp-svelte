@@ -8,6 +8,7 @@ import babel from '@rollup/plugin-babel';
 import alias from '@rollup/plugin-alias';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
+import eslint from "@rbnlffl/rollup-plugin-eslint";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -20,6 +21,7 @@ export default {
 		file: 'public/build/bundle.js'
 	},
 	plugins: [
+		eslint({ throwOnError: true }),
 		alias({
 			entries: [
 				{find: '@@Components', replacement: path.resolve(__dirname, 'src/components')},

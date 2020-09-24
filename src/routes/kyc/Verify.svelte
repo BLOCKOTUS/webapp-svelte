@@ -2,27 +2,24 @@
   // external components
   import { push } from 'svelte-spa-router';
   import { Crypt } from 'hybrid-crypto-js';
-  import axios from 'axios';
 
   // internal components
   import appConfig from '@@Config/app';
   import GoBack from '@@Components/GoBack.svelte';
-  import Button from '@@Components/Button.svelte';
   import Approve from '@@Components/Approve.svelte';
   import Refuse from '@@Components/Refuse.svelte';
   import Info from '@@Components/Info.svelte';
   import Header from '@@Components/Header.svelte';
   import Identity from '@@Components/Identity.svelte';
   import { users } from "@@Stores/users.js";
-  import { request } from '@@Modules/nerves'
+  import { request } from '@@Modules/nerves';
 
   // props attached when starting a job
-  export let params = {}
+  export let params = {};
 
   const username = $users.loggedInUser;
   const wallet = $users.users.filter(u => u.username === username)[0].wallet;
   const keypair = $users.users.filter(u => u.username === username)[0].keypair;
-  const id = $users.users.filter(u => u.username === username)[0].id;
 
   $: infoType = '';
   $: infoValue = '';
@@ -31,42 +28,39 @@
   $: resOriginalData = {};
 
   const onClickApproveRefuse = async (i, result) => {
-  console.log(`Approve ${i}`);
+    console.log(`Approve ${i}`);
 
-  infoType = 'info';
-  infoValue = 'Submiting result...';
-  infoLoading = true;
+    infoType = 'info';
+    infoValue = 'Submiting result...';
+    infoLoading = true;
 
-  const resComplete = await request({
-    username,
-    wallet,
-    url: appConfig.nerves.job.complete.url,
-    method: 'POST',
-    data: {
-      jobId,
-      result
+    const resComplete = await request({
+      username,
+      wallet,
+      url: appConfig.nerves.job.complete.url,
+      method: 'POST',
+      data: {
+        jobId,
+        result,
+      },
+    }).catch(_e => {
+      infoType = 'error';
+      infoValue = resComplete.data.message || 'error';
+      infoLoading = false;
+      return;
+    });
+
+    if(!resComplete || !resComplete.data.success){
+      infoType = 'error';
+      infoValue = resComplete.data.message || 'error';
+      infoLoading = false;
+      return;
     }
-  }).catch(e => {
-    infoType = 'error';
-    infoValue = resComplete.data.message || 'error';
-    infoLoading = false;
-    return;
-  })
 
-  if(!resComplete || !resComplete.data.success){
-    infoType = 'error';
-    infoValue = resComplete.data.message || 'error';
-    infoLoading = false;
-    return;
-  }
-
-  infoType = 'info';
-  infoValue = 'Job complete. You will be redirected to the job list.';
-  setTimeout(() => push('/kyc/jobs'), 1500);
-
-  }
-
-  const onClickRefuse = i => console.log(`Refuse ${i}`); // must communiacte with the Job module
+    infoType = 'info';
+    infoValue = 'Job complete. You will be redirected to the job list.';
+    setTimeout(() => push('/kyc/jobs'), 1500);
+  };
 
   // get job id
   const rawJobList = localStorage.getItem('job.list.pending');
@@ -74,6 +68,7 @@
   const jobId = jobList[params.jobId].jobId;
 
   const getDecryptedJob = async () => {
+    /* eslint-disable-next-line no-async-promise-executor */
     return new Promise(async (resolve, reject) => {
       // get job details
       const resJob = await request({
@@ -82,9 +77,9 @@
         url: appConfig.nerves.job.url,
         method: 'GET',
         params: {
-        jobId,
-        }
-      })
+          jobId,
+        },
+      });
 
       if(!resJob.data.job  || !resJob.data.success) {
         infoType = 'error';
@@ -92,10 +87,10 @@
         infoLoading = false;
         reject();
         return;
-      };
+      }
 
       const job = resJob.data.job;
-      console.log({job})
+      console.log({job});
       infoType = 'info';
       infoValue = resJob.data.message;
 
@@ -108,8 +103,8 @@
         method: 'GET',
         params: {
           keypairId,
-        }
-      })
+        },
+      });
 
       if( !resSharedKey || !resSharedKey.data.success) {
         infoType = 'error';
@@ -128,16 +123,16 @@
       const crypt = new Crypt();
 
       const rawSharedKeypair = crypt.decrypt(keypair.privateKey, JSON.stringify(resSharedKey.data.keypair));
-      console.log({rawSharedKeypair})
+      console.log({rawSharedKeypair});
 
-      const sharedKeypair = JSON.parse(rawSharedKeypair.message)
-      console.log({sharedKeypair})
+      const sharedKeypair = JSON.parse(rawSharedKeypair.message);
+      console.log({sharedKeypair});
 
       const decryptedJob = crypt.decrypt(sharedKeypair.privateKey, job.data);
-      console.log({decryptedJob})
+      console.log({decryptedJob});
 
       const message = JSON.parse(decryptedJob.message);
-      console.log({message})
+      console.log({message});
 
       // get originalData
       resOriginalData = await request({
@@ -146,9 +141,9 @@
         url: appConfig.nerves.identity.url,
         method: 'GET',
         params: {
-          identityId: job.creator
-        }
-      })
+          identityId: job.creator,
+        },
+      });
 
       if( !resOriginalData || !resOriginalData.data.success) {
         infoType = 'error';
@@ -158,16 +153,16 @@
         return;
       }
 
-      console.log({resOriginalData})
+      console.log({resOriginalData});
       const decryptedOriginal = crypt.decrypt(sharedKeypair.privateKey, resOriginalData.data.identity.encryptedIdentity);
       decryptedOriginalIdentity = JSON.parse(decryptedOriginal.message);
-      console.log({decryptedOriginalIdentity})
+      console.log({decryptedOriginalIdentity});
 
       infoValue = '';
       infoLoading = false;
       resolve(message);
-    })
-  }
+    });
+  };
 
   const decryptedJobPromise = getDecryptedJob();
 </script>
@@ -175,8 +170,7 @@
 <Header title="Verify" />
 <Info type={infoType} value={infoValue} loading={infoLoading} />
 
-{#await decryptedJobPromise}
-{:then decryptedJob }
+{#await decryptedJobPromise then decryptedJob}
   <div>
     <table>
       <tr>

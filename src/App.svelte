@@ -1,23 +1,17 @@
 <script>
-	// external components
-	import Router from 'svelte-spa-router'
-	import {wrap} from 'svelte-spa-router'
+	import Router from 'svelte-spa-router';
 
-	// internal components
-	import appConfig from './config/app';
-	import Button from '@@Components/Button.svelte';
-
-	// routes
 	import Home from '@@Routes/Home.svelte';
-	import { KYCRoutes } from '@@Routes/kyc/routes';
-	import { AccountRoutes } from '@@Routes/account/routes';
+	import KYCRoutes from '@@Routes/kyc/routes';
+	import AccountRoutes from '@@Routes/account/routes';
+	import appConfig from './config/app';
 
 	const routes = {
-		'/': Home,
-		...KYCRoutes,
-		...AccountRoutes,
-		'*': Home,
-	}
+  '/': Home,
+  ...KYCRoutes,
+  ...AccountRoutes,
+  '*': Home,
+	};
 
 	// execution
 	document.title = appConfig.title;

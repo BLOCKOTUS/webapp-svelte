@@ -1,16 +1,13 @@
 <script>
-	// external components
 	import { RSA } from 'hybrid-crypto-js';
-	import axios from 'axios';
 
-	// internal components
 	import appConfig from '@@Config/app';
 	import GoBack from '@@Components/GoBack.svelte';
 	import Submit from '@@Components/Submit.svelte';
 	import Header from '@@Components/Header.svelte';
 	import Info from '@@Components/Info.svelte';
-	import { users } from "@@Stores/users.js";
-	import { request } from "@@Modules/nerves";
+	import { users } from '@@Stores/users.js';
+	import { request } from '@@Modules/nerves';
 
 	$: infoValue = '';
 	$: infoType = '';
@@ -19,11 +16,10 @@
 	const rsa = new RSA();
 	
 	const generateKeyPair = () => {
-    	return new Promise((resolve) => {
-			rsa.generateKeyPair(resolve);
-		})
-	}
-
+    return new Promise((resolve) => {
+      rsa.generateKeyPair(resolve);
+		});
+	};
 
 	const register = async (e) => {
 		e.preventDefault();
@@ -41,8 +37,8 @@
 			url: appConfig.nerves.user.url,
 			data: {
 				username: $users.tmp.username,
-				publicKey: keypair.publicKey
-			}
+				publicKey: keypair.publicKey,
+			},
 		}).catch(e => {
 			infoType = 'error';
 			infoValue = e.message;
@@ -61,8 +57,8 @@
 			username: $users.tmp.username,
 			wallet,
 			keypair,
-			id
-		}
+			id,
+		};
 
 		const currentUsers = $users.users;
 		const newUsers = [...currentUsers, user];
@@ -70,7 +66,7 @@
 
 		$users.loggedInUser = $users.tmp.username;
 		$users.tmp.username = '';
-	}
+	};
 </script>
 
 <Header title="Register" />
@@ -89,12 +85,5 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-	}
-
-	.error-area {
-		background: #f7cfcf;
-		width: 100%;
-		margin-bottom: 40px;
-		display: none;
 	}
 </style>

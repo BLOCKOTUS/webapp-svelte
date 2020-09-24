@@ -1,13 +1,11 @@
 <script>
-	// external components
-    import { pop } from 'svelte-spa-router'
+  import { pop } from 'svelte-spa-router';
 
-    // internal components
-    import Button from '@@Components/Button.svelte';
+  import Button from '@@Components/Button.svelte';
 </script>
 
 <div class="go_back_button">
-    <Button label="Go back" onclick={() => pop()} />
+  <Button label="Go back" onclick={() => pop()} />
 </div>
 
 <style>
