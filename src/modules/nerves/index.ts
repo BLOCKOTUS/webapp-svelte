@@ -7,7 +7,14 @@ export const request = ({
   url,
   data = {},
   params = {},
-}) => {
+}: {
+  username: string,
+  wallet: string,
+  method: 'POST' | 'GET',
+  url: string,
+  data?: Record<string, unknown>,
+  params?: Record<string, unknown>,
+}): Promise => {
   const options = {
     url,
     data,

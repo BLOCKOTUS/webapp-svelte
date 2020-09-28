@@ -23,7 +23,7 @@ export default {
 		file: 'public/build/bundle.js'
 	},
 	plugins: [
-		eslint({ throwOnError: true }),
+		eslint({ throwOnError: false }),
 		alias({
 			entries: [
 				{find: '@@Components', replacement: path.resolve(__dirname, 'src/components')},
