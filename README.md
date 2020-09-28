@@ -1,4 +1,5 @@
 # BLOCKOTUS Webapp
+## Boilerplate Svelte.js + TypeScript + EsLint 
 
 ![preview](https://github.com/BLOCKOTUS/webapp/blob/master/README_img.png)
 
