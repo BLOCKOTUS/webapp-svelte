@@ -5,7 +5,7 @@
 	// internal components
 	import Button from '@@Components/Button.svelte';
 	import Header from '@@Components/Header.svelte';
-	import { users } from '@@Stores/users.js';
+	import { users } from '@@Stores/users';
 
 	$: loggedUser = $users.users.filter(u => u.username === $users.loggedInUser)[0];	
 </script>

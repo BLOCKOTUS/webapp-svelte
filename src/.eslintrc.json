@@ -61,7 +61,7 @@
       }
     ],
     "no-unused-expressions": 0,
-    "no-unused-vars": [
+    "@typescript-eslint/no-unused-vars": [
       2,
       {
         "argsIgnorePattern": "^_"

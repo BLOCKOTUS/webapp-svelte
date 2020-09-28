@@ -1,10 +1,11 @@
 <script lang="typescript">
-	import { users } from '@@Stores/users.js';
+	import { users } from '@@Stores/users';
+	import type { User, Account } from '@@Modules/user';
 
-  export let account: {id: string, username: string};
+  export let account: Account;
 
   const _delete = (username: string) => {
-    const filteredUsers = $users.users.filter(u => u.username !== username);
+    const filteredUsers = $users.users.filter((u: User) => u.username !== username);
     $users.users = filteredUsers;
   };
 

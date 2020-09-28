@@ -1,9 +1,7 @@
-<script>
-  // external components
+<script lang="typescript">
   import { push } from 'svelte-spa-router';
   import { Crypt } from 'hybrid-crypto-js';
 
-  // internal components
   import appConfig from '@@Config/app';
   import GoBack from '@@Components/GoBack.svelte';
   import Approve from '@@Components/Approve.svelte';
@@ -11,28 +9,30 @@
   import Info from '@@Components/Info.svelte';
   import Header from '@@Components/Header.svelte';
   import Identity from '@@Components/Identity.svelte';
-  import { users } from "@@Stores/users.js";
+  import { users } from "@@Stores/users";
   import { request } from '@@Modules/nerves';
 
-  // props attached when starting a job
+  import type { InfoType } from '@@Components/Info';
+
   export let params = {};
+
+
 
   const username = $users.loggedInUser;
   const wallet = $users.users.filter(u => u.username === username)[0].wallet;
   const keypair = $users.users.filter(u => u.username === username)[0].keypair;
 
-  $: infoType = '';
-  $: infoValue = '';
-  $: infoLoading = true;
+  let info: InfoType;
+  $: info = { value: '', type: '', loading: true };
   $: decryptedOriginalIdentity = {};
   $: resOriginalData = {};
 
   const onClickApproveRefuse = async (i, result) => {
     console.log(`Approve ${i}`);
 
-    infoType = 'info';
-    infoValue = 'Submiting result...';
-    infoLoading = true;
+    info.type = 'info';
+    info.value = 'Submiting result...';
+    info.loading = true;
 
     const resComplete = await request({
       username,
@@ -44,21 +44,21 @@
         result,
       },
     }).catch(_e => {
-      infoType = 'error';
-      infoValue = resComplete.data.message || 'error';
-      infoLoading = false;
+      info.type = 'error';
+      info.value = resComplete.data.message || 'error';
+      info.loading = false;
       return;
     });
 
     if(!resComplete || !resComplete.data.success){
-      infoType = 'error';
-      infoValue = resComplete.data.message || 'error';
-      infoLoading = false;
+      info.type = 'error';
+      info.value = resComplete.data.message || 'error';
+      info.loading = false;
       return;
     }
 
-    infoType = 'info';
-    infoValue = 'Job complete. You will be redirected to the job list.';
+    info.type = 'info';
+    info.value = 'Job complete. You will be redirected to the job list.';
     setTimeout(() => push('/kyc/jobs'), 1500);
   };
 
@@ -82,17 +82,17 @@
       });
 
       if(!resJob.data.job  || !resJob.data.success) {
-        infoType = 'error';
-        infoValue = resJob.data.message || 'error';
-        infoLoading = false;
+        info.type = 'error';
+        info.value = resJob.data.message || 'error';
+        info.loading = false;
         reject();
         return;
       }
 
       const job = resJob.data.job;
       console.log({job});
-      infoType = 'info';
-      infoValue = resJob.data.message;
+      info.type = 'info';
+      info.value = resJob.data.message;
 
       // get shared keypairs
       const keypairId = `job||${job.creator}||${jobId}`;
@@ -107,16 +107,16 @@
       });
 
       if( !resSharedKey || !resSharedKey.data.success) {
-        infoType = 'error';
-        infoValue = resSharedKey.data.message || 'error';
-        infoLoading = false;
+        info.type = 'error';
+        info.value = resSharedKey.data.message || 'error';
+        info.loading = false;
         reject();
         return;
       }
 
-      infoType = 'info';
-      infoValue = resSharedKey.data.message;
-      infoLoading = true;
+      info.type = 'info';
+      info.value = resSharedKey.data.message;
+      info.loading = true;
 
       console.log(keypair, resSharedKey.data.keypair);
 
@@ -146,9 +146,9 @@
       });
 
       if( !resOriginalData || !resOriginalData.data.success) {
-        infoType = 'error';
-        infoValue = resOriginalData.data.message || 'error';
-        infoLoading = false;
+        info.type = 'error';
+        info.value = resOriginalData.data.message || 'error';
+        info.loading = false;
         reject();
         return;
       }
@@ -158,8 +158,8 @@
       decryptedOriginalIdentity = JSON.parse(decryptedOriginal.message);
       console.log({decryptedOriginalIdentity});
 
-      infoValue = '';
-      infoLoading = false;
+      info.value = '';
+      info.loading = false;
       resolve(message);
     });
   };
@@ -168,7 +168,7 @@
 </script>
 
 <Header title="Verify" />
-<Info type={infoType} value={infoValue} loading={infoLoading} />
+<Info info={info} />
 
 {#await decryptedJobPromise then decryptedJob}
   <div>

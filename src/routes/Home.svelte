@@ -2,7 +2,7 @@
 	import { push } from 'svelte-spa-router';
 	
 	import appConfig from '@@Config/app';
-	import { users } from '@@Stores/users.js';
+	import { users } from '@@Stores/users';
 	import Button from '@@Components/Button.svelte';
 	import Header from '@@Components/Header.svelte';
 	

@@ -1,4 +1,4 @@
-<script>
+<script lang="typescript">
 	import { RSA } from 'hybrid-crypto-js';
 
 	import appConfig from '@@Config/app';
@@ -6,12 +6,13 @@
 	import Submit from '@@Components/Submit.svelte';
 	import Header from '@@Components/Header.svelte';
 	import Info from '@@Components/Info.svelte';
-	import { users } from '@@Stores/users.js';
+	import { users } from '@@Stores/users';
 	import { request } from '@@Modules/nerves';
 
-	$: infoValue = '';
-	$: infoType = '';
-	$: infoLoading = false;
+    import type { InfoType } from '@@Components/Info';
+
+	let info: InfoType;
+    $: info = { value: '', type: '', loading: false };
 
 	const rsa = new RSA();
 	
@@ -24,9 +25,9 @@
 	const register = async (e) => {
 		e.preventDefault();
 
-		infoLoading = true;
-		infoValue = '';
-		infoType = 'info';
+		info.loading = true;
+		info.value = '';
+		info.type = 'info';
 
 		// generate keypair
 		const keypair = await generateKeyPair();
@@ -40,17 +41,17 @@
 				publicKey: keypair.publicKey,
 			},
 		}).catch(e => {
-			infoType = 'error';
-			infoValue = e.message;
+			info.type = 'error';
+			info.value = e.message;
 		});
 
 		if(!res) return;
 
 		const { wallet, id, success, message } = res.data;
 
-		infoType = success ? 'info' : 'error';
-		infoValue = message;
-		infoLoading = false;
+		info.type = success ? 'info' : 'error';
+		info.value = message;
+		info.loading = false;
 		if (!success) return;
 
 		const user = {
@@ -70,7 +71,7 @@
 </script>
 
 <Header title="Register" />
-<Info value={infoValue} type={infoType} loading={infoLoading} />
+<Info info={info} />
 <form class="content">
 	<input type="text" bind:value={$users.tmp.username} placeholder="Username" />
 	<Submit onclick={register} disabled={$users.tmp.username.length == 0} />

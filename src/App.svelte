@@ -9,8 +9,8 @@
 	const routes = {
     '/': Home,
     ...KYCRoutes,
-    ...AccountRoutes,
-    '*': Home,
+	...AccountRoutes,
+    "*": Home,
 	};
 
 	// execution

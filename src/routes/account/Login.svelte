@@ -1,26 +1,28 @@
-<script>
-	// external components
+<script lang="typescript">
 	import { Crypt } from 'hybrid-crypto-js';
 
-	// internal components
     import GoBack from '@@Components/GoBack.svelte';
     import Header from '@@Components/Header.svelte';
     import Submit from '@@Components/Submit.svelte';
     import Info from '@@Components/Info.svelte';
-    import { users } from "@@Stores/users.js";
+    import { users } from "@@Stores/users";
+
+    import type { User, Keypair } from '@@Modules/user';
+    import type { InfoType } from '@@Components/Info';
 
     const crypt = new Crypt();
 
-    $: infoValue = '';
-    $: infoType = '';
+    let info: InfoType;
+    $: info = { value: '', type: '', loading: false };
     
     $: submitIsDisabled = 
         $users.tmp.username.length === 0
-        || $users.tmp.keypair.length === 0
+        || $users.tmp.keypair.privateKey.length === 0
+        || $users.tmp.keypair.publicKey.length === 0
         || $users.tmp.wallet.length === 0;
     
 
-    const validateKeypair = (keypair) => {
+    const validateKeypair = (keypair: Keypair) => {
         return new Promise((resolve, reject) => {
             if(!keypair.privateKey || !keypair.publicKey) {
                 reject();
@@ -34,33 +36,33 @@
         });
     };
 
-    const login = (e) => {
+    const login = (e: Event) => {
         e.preventDefault();
 
         validateKeypair($users.tmp.keypair)
             .catch(_e => {
-                infoValue = `Keypair is invalid.`;
-                infoType = 'error';
+                info.value = `Keypair is invalid.`;
+                info.type = 'error';
                 return;
             });
 
         if ($users
             .users
-            .filter(u => u.username === $users.tmp.username)
+            .filter((u: User) => u.username === $users.tmp.username)
             .length > 0) {
-                infoValue = `${$users.tmp.username} already logged in.`;
-                infoType = 'error';
+                info.value = `${$users.tmp.username} already logged in.`;
+                info.type = 'error';
                 return;
             }
         
         const newUsers = [...$users.users, {... $users.tmp}];
         $users.users = newUsers;
         $users.tmp.wallet = '';
-        $users.tmp.keypair = {};
+        $users.tmp.keypair = { publicKey: '', privateKey: '' };
         $users.tmp.username = '';
 
-        infoValue = 'Successfully registered.';
-        infoType = 'info';
+        info.value = 'Successfully registered.';
+        info.type = 'info';
 
         return;
     };
@@ -69,7 +71,7 @@
 
 <Header title="Login" />
 <form class="content">
-    <Info type={infoType} value={infoValue} />
+    <Info info={info} />
     <div class="left-content">
         <input type="text" placeholder="Username" name="username" bind:value={$users.tmp.username} />
         <textarea type="text" bind:value={$users.tmp.wallet} name="wallet" placeholder="Copy-paste your wallet here."/>
