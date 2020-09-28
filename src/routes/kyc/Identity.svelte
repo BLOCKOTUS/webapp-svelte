@@ -11,7 +11,6 @@
 	import { users } from "@@Stores/users.js";
 	import { request } from '@@Modules/nerves';
 
-	$: loggedUser = $users.users.filter(u => u.username === $users.loggedInUser)[0];
 	$: infoType = 'info';
 	$: infoValue = 'Loading your identity...';
 	$: infoLoading = true;
