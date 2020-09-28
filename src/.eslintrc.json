@@ -1,6 +1,5 @@
 {
   "extends": [
-    "plugin:flowtype/recommended",
     "eslint:recommended"
   ],
   "parserOptions": {
