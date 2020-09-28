@@ -1,4 +1,4 @@
-import axios from 'axios';
+import axios, { AxiosPromise } from 'axios';
 
 export const request = ({
   username = '',
@@ -14,7 +14,7 @@ export const request = ({
   url: string,
   data?: Record<string, unknown>,
   params?: Record<string, unknown>,
-}): Promise => {
+}): AxiosPromise<unknown> => {
   const options = {
     url,
     data,
