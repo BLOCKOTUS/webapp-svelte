@@ -8,12 +8,14 @@ import babel from '@rollup/plugin-babel';
 import alias from '@rollup/plugin-alias';
 import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
+import sveltePreprocess from 'svelte-preprocess';
+import typescript from '@rollup/plugin-typescript';
 import eslint from "@rbnlffl/rollup-plugin-eslint";
 
 const production = !process.env.ROLLUP_WATCH;
 
 export default {
-	input: 'src/main.js',
+	input: 'src/main.ts',
 	output: {
 		sourcemap: true,
 		format: 'iife',
@@ -41,7 +43,8 @@ export default {
 			// a separate file - better for performance
 			css: css => {
 				css.write('public/build/bundle.css');
-			}
+			},
+			preprocess: sveltePreprocess(),
 		}),
 
 		// If you have external dependencies installed from
@@ -54,6 +57,10 @@ export default {
 			dedupe: ['svelte']
 		}),
 		commonjs(),
+		typescript({
+			sourceMap: !production,
+			inlineSources: !production
+		}),
 
 		// In dev mode, call `npm run start` once
 		// the bundle has been generated
