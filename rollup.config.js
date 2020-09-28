@@ -61,6 +61,7 @@ export default {
 			sourceMap: !production,
 			inlineSources: !production
 		}),
+		typeCheck(),
 
 		// In dev mode, call `npm run start` once
 		// the bundle has been generated
@@ -99,3 +100,14 @@ function serve() {
 		}
 	};
 }
+
+function typeCheck() {
+	return {
+	  writeBundle() {
+		require('child_process').spawn('svelte-check', {
+		  stdio: ['ignore', 'inherit', 'inherit'],
+		  shell: true
+		});
+	  }
+	}
+  }
