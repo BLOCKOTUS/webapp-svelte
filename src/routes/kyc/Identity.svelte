@@ -12,12 +12,14 @@
 	import { request } from '@@Modules/nerves';
 
 	import type { InfoType } from '@@Components/Info';
+	import type { IdentityResponseObject } from '@@Modules/identity';
 
 	let info: InfoType;
     $: info = { value: 'Loading your identity...', type: 'info', loading: true };
 
-	$: identity = false;
-	$: resIdentity = {};
+	$: identity = null;
+	let resIdentity: IdentityResponseObject;
+	$: resIdentity = null;
 
 	const username = $users.loggedInUser;
 	const wallet = $users.users.filter(u => u.username === username)[0].wallet;
@@ -48,7 +50,7 @@
 
 				resIdentity = resId.data.identity;
 				var encryptedIdentity = resIdentity.encryptedIdentity;
-
+				console.log({encryptedIdentity})
 				// get job Id
 				info.value = 'Requesting the jobId used when creating your identity...';
 				const resJobId = await request({

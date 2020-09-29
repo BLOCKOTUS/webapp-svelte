@@ -18,7 +18,7 @@
 	let info: InfoType;
     $: info = { value: '', type: '', loading: true };
 
-	const onClickVerify = i => push(`/kyc/verify/${i}`);
+	const onClickVerify = (i: number) => push(`/kyc/verify/${i}`);
 
 	request({
 		username,

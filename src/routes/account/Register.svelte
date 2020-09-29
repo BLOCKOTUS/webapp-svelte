@@ -9,20 +9,21 @@
 	import { users } from '@@Stores/users';
 	import { request } from '@@Modules/nerves';
 
-    import type { InfoType } from '@@Components/Info';
+  import type { InfoType } from '@@Components/Info';
+  import type { Keypair } from '@@Modules/user';
 
 	let info: InfoType;
     $: info = { value: '', type: '', loading: false };
 
 	const rsa = new RSA();
 	
-	const generateKeyPair = () => {
+	const generateKeyPair = (): Promise<Keypair> => {
     return new Promise((resolve) => {
       rsa.generateKeyPair(resolve);
 		});
 	};
 
-	const register = async (e) => {
+	const register = async (e: Event) => {
 		e.preventDefault();
 
 		info.loading = true;

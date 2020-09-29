@@ -29,7 +29,7 @@
   $: decryptedOriginalIdentity = { firstname: '', lastname: '', nation: '', nationalId: '' };
   $: resOriginalData = null;
 
-  const onClickApproveRefuse = async (i, result) => {
+  const onClickApproveRefuse = async (i: string, result: 0 | 1) => {
     console.log(`Approve ${i}`);
 
     info.type = 'info';
@@ -45,9 +45,9 @@
         jobId,
         result,
       },
-    }).catch(_e => {
+    }).catch(e => {
       info.type = 'error';
-      info.value = _e.message || 'error';
+      info.value = e.message || 'error';
       info.loading = false;
     });
 

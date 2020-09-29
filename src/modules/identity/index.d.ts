@@ -15,7 +15,7 @@ export type IdentityType = {
 
 type EncryptedIndentity = Record<string, unknown>;
 
-type IdentityResponseObject = { 
+export type IdentityResponseObject = { 
     encryptedIdentity: EncryptedIndentity;
     confirmations: Confirmations;
     kyc: KYC;

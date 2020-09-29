@@ -8,8 +8,8 @@ export const request = ({
   data = {},
   params = {},
 }: {
-  username: string;
-  wallet: string;
+  username?: string;
+  wallet?: string;
   method: 'POST' | 'GET';
   url: string;
   data?: Record<string, unknown>;

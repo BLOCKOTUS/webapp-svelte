@@ -14,6 +14,7 @@ const setupUsers: UsersType = {
     loggedInUser: null,
     users: [],
     tmp: {
+      id: '',
       wallet: '',
       keypair: {
         privateKey: '',
