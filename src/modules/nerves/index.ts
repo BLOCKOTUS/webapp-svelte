@@ -8,13 +8,13 @@ export const request = ({
   data = {},
   params = {},
 }: {
-  username: string,
-  wallet: string,
-  method: 'POST' | 'GET',
-  url: string,
-  data?: Record<string, unknown>,
-  params?: Record<string, unknown>,
-}): AxiosPromise<unknown> => {
+  username: string;
+  wallet: string;
+  method: 'POST' | 'GET';
+  url: string;
+  data?: Record<string, unknown>;
+  params?: Record<string, unknown>;
+}): AxiosPromise => {
   const options = {
     url,
     data,
@@ -28,3 +28,7 @@ export const request = ({
   return axios(options);
 };
 
+export type RequestReponseObject = { 
+  success: boolean; 
+  message: string;
+};

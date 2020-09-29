@@ -1,3 +1,7 @@
+import type { AxiosResponse } from 'axios';
+
+import type { RequestReponseObject } from '@@Modules/nerves';
+
 export type Keypair = {
     publicKey: string,
     privateKey: string,
@@ -13,3 +17,11 @@ export type User = {
     wallet: string,
     keypair: Keypair,
 }
+
+type UserKeypairResponseObject = { 
+    keypair: Keypair;
+};
+
+export type RequestUserKeypairResponseObject = RequestReponseObject & UserKeypairResponseObject;
+
+export type RequestUserResponse = AxiosResponse<RequestUserKeypairResponseObject>;

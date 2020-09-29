@@ -1,10 +1,10 @@
-<script>
+<script lang="typescript">
     // internal components
     import Button from '@@Components/Button.svelte';
 
-    export let disabled;
-    export let onclick;
-    export let label;
+    export let disabled: boolean;
+    export let onclick: () => Promise<void>;
+    export let label: string;
 </script>
 
 <div class="approve_button">

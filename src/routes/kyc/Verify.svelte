@@ -13,19 +13,21 @@
   import { request } from '@@Modules/nerves';
 
   import type { InfoType } from '@@Components/Info';
+  import type { RequestIdentityResponse, IdentityType } from '@@Modules/identity';
+  import type { RequestJobResponse } from '@@Modules/job';
 
-  export let params = {};
-
-
+  export let params: { jobId: string };
 
   const username = $users.loggedInUser;
   const wallet = $users.users.filter(u => u.username === username)[0].wallet;
   const keypair = $users.users.filter(u => u.username === username)[0].keypair;
 
   let info: InfoType;
+  let decryptedOriginalIdentity: IdentityType;
+  let resOriginalData: RequestIdentityResponse;
   $: info = { value: '', type: '', loading: true };
-  $: decryptedOriginalIdentity = {};
-  $: resOriginalData = {};
+  $: decryptedOriginalIdentity = { firstname: '', lastname: '', nation: '', nationalId: '' };
+  $: resOriginalData = null;
 
   const onClickApproveRefuse = async (i, result) => {
     console.log(`Approve ${i}`);
@@ -34,7 +36,7 @@
     info.value = 'Submiting result...';
     info.loading = true;
 
-    const resComplete = await request({
+    const resComplete: RequestJobResponse | void = await request({
       username,
       wallet,
       url: appConfig.nerves.job.complete.url,
@@ -45,12 +47,13 @@
       },
     }).catch(_e => {
       info.type = 'error';
-      info.value = resComplete.data.message || 'error';
+      info.value = _e.message || 'error';
       info.loading = false;
-      return;
     });
 
-    if(!resComplete || !resComplete.data.success){
+    if(!resComplete) return;
+
+    if(!resComplete.data.success){
       info.type = 'error';
       info.value = resComplete.data.message || 'error';
       info.loading = false;
@@ -67,7 +70,7 @@
   const jobList = JSON.parse(rawJobList);
   const jobId = jobList[params.jobId].jobId;
 
-  const getDecryptedJob = async () => {
+  const getDecryptedJob = async (): Promise<IdentityType> => {
     /* eslint-disable-next-line no-async-promise-executor */
     return new Promise(async (resolve, reject) => {
       // get job details
@@ -170,7 +173,7 @@
 <Header title="Verify" />
 <Info info={info} />
 
-{#await decryptedJobPromise then decryptedJob}
+{#await decryptedJobPromise then decryptedJobResult}
   <div>
     <table>
       <tr>
@@ -180,7 +183,7 @@
       <tr>
         <td>
           <Identity 
-            identity={decryptedJob}
+            identity={decryptedJobResult}
             kyc={resOriginalData.data.identity.kyc}
             confirmations={resOriginalData.data.identity.confirmations}
           />
