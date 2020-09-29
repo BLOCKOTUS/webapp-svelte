@@ -1,17 +1,18 @@
-<script>
-	import { users } from '@@Stores/users.js';
+<script lang="typescript">
+	import { users } from '@@Stores/users';
 	import Account from '@@Components/Account.svelte';
 	import GoBack from '@@Components/GoBack.svelte';
 	import Header from '@@Components/Header.svelte';
 	import Info from '@@Components/Info.svelte';
 
-	$: infoValue = '';
-	$: infoType = '';
-	$: infoLoading = false;
+    import type { InfoType } from '@@Components/Info';
+
+	let info: InfoType;
+    $: info = { value: '', type: '', loading: false };
 </script>
 
 <Header title="Manage accounts" />
-<Info value={infoValue} type={infoType} loading={infoLoading} />
+<Info info={info} />
 <div class="flex-container">
 {#each $users.users as user}
 	<Account account={user} />

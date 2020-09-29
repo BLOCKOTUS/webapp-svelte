@@ -1,25 +1,24 @@
-<script>
-	// external components
+<script lang="typescript">
 	import { push } from 'svelte-spa-router';
 
-	// internal components
 	import appConfig from '@@Config/app';
 	import GoHome from '@@Components/GoHome.svelte';
 	import Button from '@@Components/Button.svelte';
 	import Info from '@@Components/Info.svelte';
 	import Header from '@@Components/Header.svelte';
-	import { users } from "@@Stores/users.js";
+	import { users } from "@@Stores/users";
 	import { request } from '@@Modules/nerves';
+
+    import type { InfoType } from '@@Components/Info';
 
 	const username = $users.loggedInUser;
 	const wallet = $users.users.filter(u => u.username === username)[0].wallet;
 
 	$: list = [];
-	$: infoType = '';
-	$: infoValue = '';
-	$: infoLoading = true;
+	let info: InfoType;
+    $: info = { value: '', type: '', loading: true };
 
-	const onClickVerify = i => push(`/kyc/verify/${i}`);
+	const onClickVerify = (i: number) => push(`/kyc/verify/${i}`);
 
 	request({
 		username,
@@ -31,23 +30,23 @@
 		},
 	})
 		.catch(e => {
-			infoType = 'error';
-			infoValue = e.message;
-			infoLoading = false;
+			info.type = 'error';
+			info.value = e.message;
+			info.loading = false;
 		})
 		.then(resList =>{
 			if (resList) {
 				list = resList.data.list;
 				localStorage.setItem('job.list.pending', JSON.stringify(list));
-				if (list.length === 0) infoValue = 'You have no jobs assigned.';
-				infoLoading = false;
+				if (list.length === 0) info.value = 'You have no jobs assigned.';
+				info.loading = false;
 			}
 		});
 
 </script>
 
 <Header title="Verify" />
-<Info type={infoType} value={infoValue} loading={infoLoading} />
+<Info info={info} />
 
 <table>
 	<tr>

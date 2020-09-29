@@ -1,4 +1,4 @@
-<script>
+<script lang="typescript">
 	// external components
 	import { RSA, Crypt } from 'hybrid-crypto-js';
 	import { push } from 'svelte-spa-router';
@@ -10,8 +10,12 @@
 	import Submit from '@@Components/Submit.svelte';
 	import Info from '@@Components/Info.svelte';
 	import Header from '@@Components/Header.svelte';
-	import { citizen } from "@@Stores/citizen.js";
-	import { users } from "@@Stores/users.js";
+	import { citizen } from "@@Stores/citizen";
+	import { users } from "@@Stores/users";
+
+	import type { InfoType } from '@@Components/Info';
+	import type { Keypair, SharedWithKeypair } from '@@Modules/user';
+	import type { WorkerType } from '@@Modules/job';
 
 	const username = $users.loggedInUser;
 	const wallet = $users.users.filter(u => u.username === username)[0].wallet;
@@ -20,9 +24,9 @@
 
 	var rsa = new RSA();
 	var crypt = new Crypt();
-	$: infoType = '';
-	$: infoValue = '';
-	$: infoLoading = false;
+
+	let info: InfoType;
+    $: info = { value: '', type: '', loading: false };
 
 	$: submitIsDisabled = 
 		$citizen.firstname.length === 0
@@ -30,16 +34,16 @@
 		|| $citizen.nation.length === 0
 		|| $citizen.nationalId.length === 0;
 
-	const generateKeyPair = () => {
+	const generateKeyPair = (): Promise<Keypair> => {
 		return new Promise((resolve) => {
 			rsa.generateKeyPair(resolve);
 		});
 	};
 	
-	const createIdentity = async (e) => {
+	const createIdentity = async (e: Event) => {
 		e.preventDefault();
 
-		infoLoading = true;
+		info.loading = true;
 
 		// create keypair (to be shared later)
 		const keypairToShare = await generateKeyPair();
@@ -54,20 +58,21 @@
 				user: { username, wallet },
 			})
 			.catch(e => {
-				infoType = 'error';
-				infoValue = e.message;
-				infoLoading = false;
+				info.type = 'error';
+				info.value = e.message;
+				info.loading = false;
 			});
 		
-		if (!resIdentity || !resIdentity.data.success) {
-			infoType = 'error';
-			infoValue = resIdentity.data.message;
-			infoLoading = false;
+		if (!resIdentity) return;
+		if (!resIdentity.data.success) {
+			info.type = 'error';
+			info.value = resIdentity.data.message;
+			info.loading = false;
 			return;
 		}
 
-		infoType = 'info';
-		infoValue = resIdentity.data.message;
+		info.type = 'info';
+		info.value = resIdentity.data.message;
 		
 		// create verification jobs
 		const resJob = await axios
@@ -79,20 +84,21 @@
 				user: { username, wallet },
 			})
 			.catch(e => {
-				infoType = 'error';
-				infoValue = e.message;
-				infoLoading = false;
+				info.type = 'error';
+				info.value = e.message;
+				info.loading = false;
 			});
 
-		if (!resJob || !resJob.data.success) {
-			infoType = 'error';
-			infoValue = resJob.data.message;
-			infoLoading = false;
+		if (!resJob) return;
+		if (!resJob.data.success) {
+			info.type = 'error';
+			info.value = resJob.data.message;
+			info.loading = false;
 			return;
 		}
 
-		infoType = 'info';
-		infoValue = resJob.data.message;
+		info.type = 'info';
+		info.value = resJob.data.message;
 
 		const { workersIds, jobId } = resJob.data;
 
@@ -102,10 +108,10 @@
 		const decryptedKeypair = JSON.parse(decryptedKeypairRaw.message);
 		console.log({keypairToShare, myEncryptedKeyPair, decryptedKeypairRaw, decryptedKeypair});
 		const sharedWith = workersIds.reduce(
-      (acc, worker) => {
+      (acc: SharedWithKeypair, worker: WorkerType) => {
         return ({
           ...acc,
-          [worker._id]: {keyPair: crypt.encrypt(worker.publicKey, JSON.stringify(keypairToShare))},
+          [worker._id]: {keypair: crypt.encrypt(worker.publicKey, JSON.stringify(keypairToShare))},
         });
       },
       {},
@@ -120,21 +126,22 @@
 				user: { username, wallet },
 			})
 			.catch(e => {
-				infoType = 'error';
-				infoValue = e.message;
-				infoLoading = false;
+				info.type = 'error';
+				info.value = e.message;
+				info.loading = false;
 			});
 
-		if (!resKeypair || !resKeypair.data.success) {
-			infoType = 'error';
-			infoValue = resKeypair.data.message;
-			infoLoading = false;
+		if (!resKeypair) return;
+		if (!resKeypair.data.success) {
+			info.type = 'error';
+			info.value = resKeypair.data.message;
+			info.loading = false;
 			return;
 		}
 
 		$users.users.filter(u => u.username === username)[0].identity = {...$citizen};
-		infoType = 'info';
-		infoValue = 'Your identity have been successfully created. Wait for confirmations. You will be redirected.';
+		info.type = 'info';
+		info.value = 'Your identity have been successfully created. Wait for confirmations. You will be redirected.';
 		setTimeout(() => push('/'), 1500);
 	};
 </script>
@@ -142,7 +149,7 @@
 <Header title="Get verified" />
 
 <form class="content">
-	<Info type={infoType} value={infoValue} loading={infoLoading} />
+	<Info info={info} />
 	<input type="text" bind:value={$citizen.firstname} placeholder="Firstname" />
 	<input type="text" bind:value={$citizen.lastname} placeholder="Lastname" />
 	<input type="text" bind:value={$citizen.nation} placeholder="Nation" />

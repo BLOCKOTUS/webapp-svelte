@@ -1,16 +1,16 @@
-<script lang="ts">
+<script lang="typescript">
 	import Router from 'svelte-spa-router';
 
 	import Home from '@@Routes/Home.svelte';
 	import KYCRoutes from '@@Routes/kyc/routes';
 	import AccountRoutes from '@@Routes/account/routes';
-	import appConfig from './config/app';
+	import appConfig from '@@Config/app';
 
 	const routes = {
-  '/': Home,
-  ...KYCRoutes,
-  ...AccountRoutes,
-  '*': Home,
+    '/': Home,
+    ...KYCRoutes,
+	...AccountRoutes,
+    "*": Home,
 	};
 
 	// execution

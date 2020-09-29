@@ -3,20 +3,16 @@
 
   "include": ["src/**/*"],
   "exclude": ["node_modules/*", "public/*"],
-  "compilerOptions": {
-    "target": "ESNEXT",
-    "lib": ["ESNEXT", "dom"],
-    "module": "ESNEXT",
+  "compilerOptions": { 
     "moduleResolution": "node",
-
-    "esModuleInterop": true,
-    "allowSyntheticDefaultImports": true,
-    "strict": true,
-    "forceConsistentCasingInFileNames": true,
-    
-    "resolveJsonModule": true,
-    "isolatedModules": true,
-    "noEmit": true,
-    "strictNullChecks": true
+    "baseUrl": "./src",
+    "paths": {
+      "@@Components/*": ["components/*"],
+      "@@Config/*": ["config/*"],
+      "@@Fixtures/*": ["fixtures/*"],
+      "@@Modules/*": ["modules/*"],
+      "@@Routes/*": ["routes/*"],
+      "@@Stores/*": ["stores/*"],
+    }
   }
 }

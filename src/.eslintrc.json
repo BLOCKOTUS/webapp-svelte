@@ -1,7 +1,9 @@
 {
+  "root": true,
+  "parser": "@typescript-eslint/parser",
   "extends": [
-    "plugin:flowtype/recommended",
-    "eslint:recommended"
+    "eslint:recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
   "parserOptions": {
       "ecmaVersion": 2019,
@@ -12,12 +14,25 @@
       "browser": true
     },
     "plugins": [
-      "svelte3"
+      "svelte3",
+      "@typescript-eslint"
     ],
     "overrides": [
       {
         "files": ["*.svelte"],
         "processor": "svelte3/svelte3"
+      },
+      {
+        "parser": "@typescript-eslint/parser",
+        "extends": [
+          "plugin:@typescript-eslint/recommended",
+          "plugin:import/typescript"
+        ],
+        "plugins": ["@typescript-eslint"],
+  
+        "files": ["*.ts", "*.tsx"],
+  
+        "rules": {}
       }
   ],
   "settings": {
@@ -46,7 +61,7 @@
       }
     ],
     "no-unused-expressions": 0,
-    "no-unused-vars": [
+    "@typescript-eslint/no-unused-vars": [
       2,
       {
         "argsIgnorePattern": "^_"

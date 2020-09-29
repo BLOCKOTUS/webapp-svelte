@@ -1,17 +1,17 @@
-<script>
-    export let value;
-    export let type;
-    export let loading;
+<script lang="typescript">
+	import type { InfoType } from './Info';
+
+	export let info: InfoType;
 </script>
 
 <div 
-    class={type === 'error' ? 'error-area' : 'info-area'} 
-    style={value.length === 0 && !loading ? 'display: none;' : ''}
+    class={info.type === 'error' ? 'error-area' : 'info-area'} 
+    style={info.value.length === 0 && !info.loading ? 'display: none;' : ''}
 >
-	{#if loading}
+	{#if info.loading}
 		<div class="loader"></div>
 	{/if}
-    {value}
+    {info.value}
 </div>
 
 <style>

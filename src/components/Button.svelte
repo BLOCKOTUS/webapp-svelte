@@ -1,8 +1,7 @@
-<script>
-	// variables and constants
-    export let label;
-    export let disabled;
-    export let onclick;
+<script lang="typescript">
+    export let label: string;
+    export let disabled: boolean;
+    export let onclick: (event: MouseEvent & { target: EventTarget & HTMLButtonElement; }) => any;
 </script>
 
 <div class="button">

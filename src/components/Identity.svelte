@@ -1,7 +1,9 @@
-<script>
-	export let identity;
-	export let kyc;
-	export let confirmations;
+<script lang="typescript">
+	import type { IdentityType, KYC, Confirmations } from '@@Modules/identity';
+
+	export let identity: IdentityType;
+	export let kyc: KYC;
+	export let confirmations: Confirmations;
 </script>
 
 <table>
@@ -16,7 +18,7 @@
 <div>Documentation 2</div>
 
 <style>
-    * {
+  * {
 		box-sizing: border-box;
 	}
 	

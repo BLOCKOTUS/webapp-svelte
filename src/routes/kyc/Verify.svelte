@@ -1,9 +1,7 @@
-<script>
-  // external components
+<script lang="typescript">
   import { push } from 'svelte-spa-router';
   import { Crypt } from 'hybrid-crypto-js';
 
-  // internal components
   import appConfig from '@@Config/app';
   import GoBack from '@@Components/GoBack.svelte';
   import Approve from '@@Components/Approve.svelte';
@@ -11,30 +9,34 @@
   import Info from '@@Components/Info.svelte';
   import Header from '@@Components/Header.svelte';
   import Identity from '@@Components/Identity.svelte';
-  import { users } from "@@Stores/users.js";
+  import { users } from "@@Stores/users";
   import { request } from '@@Modules/nerves';
 
-  // props attached when starting a job
-  export let params = {};
+  import type { InfoType } from '@@Components/Info';
+  import type { RequestIdentityResponse, IdentityType } from '@@Modules/identity';
+  import type { RequestJobResponse } from '@@Modules/job';
+
+  export let params: { jobId: string };
 
   const username = $users.loggedInUser;
   const wallet = $users.users.filter(u => u.username === username)[0].wallet;
   const keypair = $users.users.filter(u => u.username === username)[0].keypair;
 
-  $: infoType = '';
-  $: infoValue = '';
-  $: infoLoading = true;
-  $: decryptedOriginalIdentity = {};
-  $: resOriginalData = {};
+  let info: InfoType;
+  let decryptedOriginalIdentity: IdentityType;
+  let resOriginalData: RequestIdentityResponse;
+  $: info = { value: '', type: '', loading: true };
+  $: decryptedOriginalIdentity = { firstname: '', lastname: '', nation: '', nationalId: '' };
+  $: resOriginalData = null;
 
-  const onClickApproveRefuse = async (i, result) => {
+  const onClickApproveRefuse = async (i: string, result: 0 | 1) => {
     console.log(`Approve ${i}`);
 
-    infoType = 'info';
-    infoValue = 'Submiting result...';
-    infoLoading = true;
+    info.type = 'info';
+    info.value = 'Submiting result...';
+    info.loading = true;
 
-    const resComplete = await request({
+    const resComplete: RequestJobResponse | void = await request({
       username,
       wallet,
       url: appConfig.nerves.job.complete.url,
@@ -43,22 +45,23 @@
         jobId,
         result,
       },
-    }).catch(_e => {
-      infoType = 'error';
-      infoValue = resComplete.data.message || 'error';
-      infoLoading = false;
-      return;
+    }).catch(e => {
+      info.type = 'error';
+      info.value = e.message || 'error';
+      info.loading = false;
     });
 
-    if(!resComplete || !resComplete.data.success){
-      infoType = 'error';
-      infoValue = resComplete.data.message || 'error';
-      infoLoading = false;
+    if(!resComplete) return;
+
+    if(!resComplete.data.success){
+      info.type = 'error';
+      info.value = resComplete.data.message || 'error';
+      info.loading = false;
       return;
     }
 
-    infoType = 'info';
-    infoValue = 'Job complete. You will be redirected to the job list.';
+    info.type = 'info';
+    info.value = 'Job complete. You will be redirected to the job list.';
     setTimeout(() => push('/kyc/jobs'), 1500);
   };
 
@@ -67,7 +70,7 @@
   const jobList = JSON.parse(rawJobList);
   const jobId = jobList[params.jobId].jobId;
 
-  const getDecryptedJob = async () => {
+  const getDecryptedJob = async (): Promise<IdentityType> => {
     /* eslint-disable-next-line no-async-promise-executor */
     return new Promise(async (resolve, reject) => {
       // get job details
@@ -82,17 +85,17 @@
       });
 
       if(!resJob.data.job  || !resJob.data.success) {
-        infoType = 'error';
-        infoValue = resJob.data.message || 'error';
-        infoLoading = false;
+        info.type = 'error';
+        info.value = resJob.data.message || 'error';
+        info.loading = false;
         reject();
         return;
       }
 
       const job = resJob.data.job;
       console.log({job});
-      infoType = 'info';
-      infoValue = resJob.data.message;
+      info.type = 'info';
+      info.value = resJob.data.message;
 
       // get shared keypairs
       const keypairId = `job||${job.creator}||${jobId}`;
@@ -107,16 +110,16 @@
       });
 
       if( !resSharedKey || !resSharedKey.data.success) {
-        infoType = 'error';
-        infoValue = resSharedKey.data.message || 'error';
-        infoLoading = false;
+        info.type = 'error';
+        info.value = resSharedKey.data.message || 'error';
+        info.loading = false;
         reject();
         return;
       }
 
-      infoType = 'info';
-      infoValue = resSharedKey.data.message;
-      infoLoading = true;
+      info.type = 'info';
+      info.value = resSharedKey.data.message;
+      info.loading = true;
 
       console.log(keypair, resSharedKey.data.keypair);
 
@@ -146,9 +149,9 @@
       });
 
       if( !resOriginalData || !resOriginalData.data.success) {
-        infoType = 'error';
-        infoValue = resOriginalData.data.message || 'error';
-        infoLoading = false;
+        info.type = 'error';
+        info.value = resOriginalData.data.message || 'error';
+        info.loading = false;
         reject();
         return;
       }
@@ -158,8 +161,8 @@
       decryptedOriginalIdentity = JSON.parse(decryptedOriginal.message);
       console.log({decryptedOriginalIdentity});
 
-      infoValue = '';
-      infoLoading = false;
+      info.value = '';
+      info.loading = false;
       resolve(message);
     });
   };
@@ -168,9 +171,9 @@
 </script>
 
 <Header title="Verify" />
-<Info type={infoType} value={infoValue} loading={infoLoading} />
+<Info info={info} />
 
-{#await decryptedJobPromise then decryptedJob}
+{#await decryptedJobPromise then decryptedJobResult}
   <div>
     <table>
       <tr>
@@ -180,7 +183,7 @@
       <tr>
         <td>
           <Identity 
-            identity={decryptedJob}
+            identity={decryptedJobResult}
             kyc={resOriginalData.data.identity.kyc}
             confirmations={resOriginalData.data.identity.confirmations}
           />

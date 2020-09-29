@@ -1,4 +1,4 @@
-<script>
+<script lang="typescript">
 	// external components
 	import { Crypt } from 'hybrid-crypto-js';
 
@@ -8,15 +8,18 @@
 	import Header from '@@Components/Header.svelte';
 	import Identity from '@@Components/Identity.svelte';
 	import Info from '@@Components/Info.svelte';
-	import { users } from "@@Stores/users.js";
+	import { users } from "@@Stores/users";
 	import { request } from '@@Modules/nerves';
 
-	$: loggedUser = $users.users.filter(u => u.username === $users.loggedInUser)[0];
-	$: infoType = 'info';
-	$: infoValue = 'Loading your identity...';
-	$: infoLoading = true;
-	$: identity = false;
-	$: resIdentity = {};
+	import type { InfoType } from '@@Components/Info';
+	import type { IdentityResponseObject } from '@@Modules/identity';
+
+	let info: InfoType;
+    $: info = { value: 'Loading your identity...', type: 'info', loading: true };
+
+	$: identity = null;
+	let resIdentity: IdentityResponseObject;
+	$: resIdentity = null;
 
 	const username = $users.loggedInUser;
 	const wallet = $users.users.filter(u => u.username === username)[0].wallet;
@@ -32,24 +35,24 @@
 		method: 'GET',
 	})
 		.catch(e => {
-			infoType = 'error';
-			infoValue = e.message;
-			infoLoading = false;
+			info.type = 'error';
+			info.value = e.message;
+			info.loading = false;
 		})
 		.then(async resId =>{
 			if (resId) {
 				if(!resId.data.success){
-					infoType = 'error';
-					infoValue = resId.data.message;
-					infoLoading = false;
+					info.type = 'error';
+					info.value = resId.data.message;
+					info.loading = false;
 					return;
 				}
 
 				resIdentity = resId.data.identity;
 				var encryptedIdentity = resIdentity.encryptedIdentity;
-
+				console.log({encryptedIdentity})
 				// get job Id
-				infoValue = 'Requesting the jobId used when creating your identity...';
+				info.value = 'Requesting the jobId used when creating your identity...';
 				const resJobId = await request({
 					username,
 					wallet,
@@ -62,16 +65,16 @@
 				});
 
 				if( !resJobId || !resJobId.data.success) {
-					infoType = 'error';
-					infoValue = resJobId.data.message || 'error';
-					infoLoading = false;
+					info.type = 'error';
+					info.value = resJobId.data.message || 'error';
+					info.loading = false;
 					return;
 				}
 
 				const jobId = resJobId.data.list[0].jobId;
 
 				// get shared keypairs
-				infoValue = 'Requesting the shared keypair used when creating your identity...';
+				info.value = 'Requesting the shared keypair used when creating your identity...';
 				const keypairId = `job||${id}||${jobId}`;
 				const resSharedKey = await request({
 					username,
@@ -84,9 +87,9 @@
 				});
 
 				if( !resSharedKey || !resSharedKey.data.success) {
-					infoType = 'error';
-					infoValue = resSharedKey.data.message || 'error';
-					infoLoading = false;
+					info.type = 'error';
+					info.value = resSharedKey.data.message || 'error';
+					info.loading = false;
 					return;
 				}
 
@@ -94,8 +97,8 @@
 				const sharedKeypair = JSON.parse(rawSharedKeypair.message);
 
 				var decryptedIdentity = crypt.decrypt(sharedKeypair.privateKey, encryptedIdentity);
-				infoLoading = false;
-				infoValue = '';
+				info.loading = false;
+				info.value = '';
 
 				identity = JSON.parse(decryptedIdentity.message);
 			}
@@ -103,7 +106,7 @@
 </script>
 
 <Header title="Identity" />
-<Info type={infoType} value={infoValue} loading={infoLoading} />
+<Info info={info} />
 {#if identity}
 	<Identity 
 		identity={identity}

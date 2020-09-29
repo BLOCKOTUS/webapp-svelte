@@ -1,9 +1,9 @@
-<script>
-    import { users } from "@@Stores/users.js";
+<script lang="typescript">
+    import { users } from "@@Stores/users";
 
-    export let title;
+    export let title: string;
 
-    const _onchange = e => $users.loggedInUser = e.target.value.length > 0 ? e.target.value : null;
+    const _onchange = (e: {target: { value: string }}) => $users.loggedInUser = e.target.value.length > 0 ? e.target.value : null;
 
 </script>
 
