@@ -18,7 +18,7 @@
 		<td>Documentation</td>
 		<td>
 			{#if verifyDocumentationUrl(identity.documentation)}
-			<a href={identity.documentation} target="_blank">{identity.documentation}</a>
+				<a href={identity.documentation} target="_blank">{identity.documentation}</a>
 			{/if}
 		</td>
 	</tr>
