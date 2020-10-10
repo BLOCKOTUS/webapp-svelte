@@ -12,6 +12,7 @@
 	import Header from '@@Components/Header.svelte';
 	import { citizen } from "@@Stores/citizen";
 	import { users } from "@@Stores/users";
+	import { verifyDocumentationUrl } from '@@Modules/identity';
 
 	import type { InfoType } from '@@Components/Info';
 	import type { Keypair, SharedWithKeypair } from '@@Modules/user';
@@ -40,11 +41,6 @@
 			rsa.generateKeyPair(resolve);
 		});
 	};
-	
-	const verifyDocumentationUrl = (url: string): boolean => {
-		const regex = /^https?:\/\/imgur.com\/a\/([\w]{7})$/gm;
-		return regex.test(url);
-	} 
 
 	const createIdentity = async (e: Event) => {
 		e.preventDefault();

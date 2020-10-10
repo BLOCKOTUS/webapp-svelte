@@ -27,3 +27,8 @@ export type RequestIdentityResponseObject = RequestReponseObject & {
 };
 
 export type RequestIdentityResponse = AxiosResponse<RequestIdentityResponseObject>;
+
+export const verifyDocumentationUrl = (url: string): boolean => {
+    const regex = /^https?:\/\/imgur.com\/a\/([\w]{7})$/gm;
+    return regex.test(url);
+};
