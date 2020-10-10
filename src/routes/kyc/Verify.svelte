@@ -26,7 +26,7 @@
   let decryptedOriginalIdentity: IdentityType;
   let resOriginalData: RequestIdentityResponse;
   $: info = { value: '', type: '', loading: true };
-  $: decryptedOriginalIdentity = { firstname: '', lastname: '', nation: '', nationalId: '' };
+  $: decryptedOriginalIdentity = { firstname: '', lastname: '', nation: '', nationalId: '', documentation: '' };
   $: resOriginalData = null;
 
   const onClickApproveRefuse = async (i: string, result: 0 | 1) => {

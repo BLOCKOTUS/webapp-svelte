@@ -32,7 +32,8 @@
 		$citizen.firstname.length === 0
 		|| $citizen.lastname.length === 0
 		|| $citizen.nation.length === 0
-		|| $citizen.nationalId.length === 0;
+		|| $citizen.nationalId.length === 0
+		|| $citizen.documentation.length === 0;
 
 	const generateKeyPair = (): Promise<Keypair> => {
 		return new Promise((resolve) => {
@@ -40,10 +41,24 @@
 		});
 	};
 	
+	const verifyDocumentationUrl = (url: string): boolean => {
+		const regex = /^https?:\/\/imgur.com\/a\/([\w]{7})$/gm;
+		return regex.test(url);
+	} 
+
 	const createIdentity = async (e: Event) => {
 		e.preventDefault();
 
+		info.type = 'info';
+		info.value = 'Submitting...';
 		info.loading = true;
+
+		if (!verifyDocumentationUrl($citizen.documentation)) {
+			info.type = 'error';
+			info.value = 'Documentation URL is incorrect. Format: https://imgur.com/a/5a15vOr';
+			info.loading = false;
+			return;
+		}
 
 		// create keypair (to be shared later)
 		const keypairToShare = await generateKeyPair();
@@ -153,7 +168,10 @@
 	<input type="text" bind:value={$citizen.firstname} placeholder="Firstname" />
 	<input type="text" bind:value={$citizen.lastname} placeholder="Lastname" />
 	<input type="text" bind:value={$citizen.nation} placeholder="Nation" />
-	<input type="text" bind:value={$citizen.nationalId} placeholder="Nation ID" />
+	<input type="text" bind:value={$citizen.nationalId} placeholder="National ID" />
+	<input type="text" bind:value={$citizen.documentation} placeholder="Documentation" />
+	Copy-paste the url of your imgur gallery in the documentation field. 
+	<br /> <a href="https://imgur.com/a/5a15vOr" target="_blank">https://imgur.com/a/5a15vOr</a>
 	<Submit onclick={createIdentity} disabled={submitIsDisabled} />
 </form>
 

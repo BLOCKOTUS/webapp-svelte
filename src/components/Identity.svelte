@@ -7,21 +7,25 @@
 </script>
 
 <table>
-  <tr><td>Firstname</td><td>{identity.firstname}</td></tr>
-  <tr><td>Lastname</td><td>{identity.lastname}</td></tr>
-  <tr><td>Nation</td><td>{identity.nation}</td></tr>
-  <tr><td>National Id</td><td>{identity.nationalId}</td></tr>
-  <tr><td>KYC</td><td>{kyc}</td></tr>
-  <tr><td>Confirmations</td><td>{confirmations[0]}/{confirmations[1]}</td></tr>
+	<tr><td>Firstname</td><td>{identity.firstname}</td></tr>
+	<tr><td>Lastname</td><td>{identity.lastname}</td></tr>
+	<tr><td>Nation</td><td>{identity.nation}</td></tr>
+	<tr><td>National Id</td><td>{identity.nationalId}</td></tr>
+	<tr><td>KYC</td><td>{kyc}</td></tr>
+	<tr><td>Confirmations</td><td>{confirmations[0]}/{confirmations[1]}</td></tr>
+	<tr>
+		<td>Documentation</td>
+		<td>
+			<a href={identity.documentation} target="_blank">{identity.documentation}</a>
+		</td>
+	</tr>
 </table>
-<div>Documentation 1</div>
-<div>Documentation 2</div>
 
 <style>
-  * {
+	* {
 		box-sizing: border-box;
 	}
-	
+
 	table {
 		border-spacing: 0px;
 		border-collapse: collapse;
@@ -30,6 +34,12 @@
 		margin-bottom: 15px;
 		background-color: transparent; /* Change the background-color of table here */
 		text-align: left; /* Change the text-alignment of table here */
+	}
+	
+	th {
+		font-weight: bold;
+		border: 1px solid #cccccc; /* Change the border-color of heading here */
+		padding: 8px;
 	}
 	
 	td {
@@ -48,7 +58,11 @@
 	tr:nth-of-type(2n+1) {
 		background-color: #eeeeee; /* Change the background-color of odd rows here */
 	}
-
+	
+	tr th {
+		background-color: #dddddd; /* Change the background-color of heading here */
+	}
+	
 	/* Adding Hover Effect for rows */
 	
 	tr {
@@ -70,7 +84,7 @@
 		border-bottom: 1px solid #cccccc;
 	}
 	
-	td {
+	th, td {
 		border: none;
 	}
 </style>

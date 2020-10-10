@@ -11,6 +11,7 @@ export type IdentityType = {
     lastname: string;
     nation: string;
     nationalId: string;
+    documentation: string;
 }
 
 type EncryptedIndentity = Record<string, unknown>;
