@@ -6,12 +6,5 @@ export const citizen = writable({
   nation: "",
   nationalId: "",
   birthdate: "",
-  address: {
-      line1: "",
-      line2: "",
-      postalCode: "",
-      city: "",
-      country: "",
-  },
   documentation: "",
 });

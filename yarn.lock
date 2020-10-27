@@ -1575,6 +1575,11 @@ inherits@2, inherits@^2.0.3, inherits@~2.0.3:
   resolved "https://registry.yarnpkg.com/inherits/-/inherits-2.0.4.tgz#0fa2c64f932917c3433a0ded55363aae37416b7c"
   integrity sha512-k/vGaX4/Yla3WzyMCvTQOXYeIHvqOKtnqBduzTHpzpQZzAskKMhZ2K+EnBiSM9zGSoIFeMpXKxa4dYeZIQqewQ==
 
+input-core@2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/input-core/-/input-core-2.0.1.tgz#4aa350f4f2b65d34dd6e94745ff9ab6bf0963ef3"
+  integrity sha512-KHx7rZraeQItqJaWThYx6BN/ScfbgtOyeKz48Dl8uM68LfaNtJb7jxhyoh6HYDhvbmrpcN5UE1IiYp0q1xOHuQ==
+
 is-accessor-descriptor@^0.1.6:
   version "0.1.6"
   resolved "https://registry.yarnpkg.com/is-accessor-descriptor/-/is-accessor-descriptor-0.1.6.tgz#a9e12cb3ae8d876727eeef3843f8a0897b5c98d6"
@@ -2887,6 +2892,13 @@ svelte-check@^1.0.0:
     vscode-languageserver-protocol "3.15.3"
     vscode-languageserver-types "3.15.1"
     vscode-uri "2.1.2"
+
+svelte-input-mask@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/svelte-input-mask/-/svelte-input-mask-1.0.1.tgz#42de40a621a07cdaffd8b60f9d86a6f60b6ffe02"
+  integrity sha512-OYtm6/SFcVN4MLfWv0GGtGGOhZPkQwlw0GrsjaR0QMZNKi9oEzX8qResjmWUYcwSoQLDBMNJh9rLnYiWXj9DFA==
+  dependencies:
+    input-core "2.0.1"
 
 svelte-language-server@*:
   version "0.10.131"

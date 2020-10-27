@@ -1,6 +1,6 @@
 {
   "name": "blockotus-webapp",
-  "version": "0.1.3-beta",
+  "version": "0.2.1-alpha",
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
@@ -47,6 +47,7 @@
     "axios": "^0.20.0",
     "hybrid-crypto-js": "^0.2.4",
     "sirv-cli": "^1.0.6",
+    "svelte-input-mask": "^1.0.1",
     "svelte-spa-router": "^3.0.2"
   },
   "resolutions": {

@@ -1,10 +1,9 @@
 <script lang="typescript">
-	// external components
-	import { RSA, Crypt } from 'hybrid-crypto-js';
+	import { Crypt } from 'hybrid-crypto-js';
 	import { push } from 'svelte-spa-router';
 	import axios from 'axios';
+	import MaskInput from "svelte-input-mask/MaskInput.svelte";
 
-	// internal components
 	import appConfig from '@@Config/app';
 	import GoBack from '@@Components/GoBack.svelte';
 	import Submit from '@@Components/Submit.svelte';
@@ -13,17 +12,20 @@
 	import { citizen } from "@@Stores/citizen";
 	import { users } from "@@Stores/users";
 	import { verifyDocumentationUrl } from '@@Modules/identity';
+	import { generateKeyPair } from '@@Modules/crypto';
 
 	import type { InfoType } from '@@Components/Info';
-	import type { Keypair, SharedWithKeypair } from '@@Modules/user';
+	import type { SharedWithKeypair } from '@@Modules/user';
 	import type { WorkerType } from '@@Modules/job';
+
+	const maskString = 'YYYY-MM-DD';
+	const mask = '0000-00-00';
 
 	const username = $users.loggedInUser;
 	const wallet = $users.users.filter(u => u.username === username)[0].wallet;
 	const keypair = $users.users.filter(u => u.username === username)[0].keypair;
 	const id = $users.users.filter(u => u.username === username)[0].id;
 
-	var rsa = new RSA();
 	var crypt = new Crypt();
 
 	let info: InfoType;
@@ -35,12 +37,6 @@
 		|| $citizen.nation.length === 0
 		|| $citizen.nationalId.length === 0
 		|| $citizen.documentation.length === 0;
-
-	const generateKeyPair = (): Promise<Keypair> => {
-		return new Promise((resolve) => {
-			rsa.generateKeyPair(resolve);
-		});
-	};
 
 	const createIdentity = async (e: Event) => {
 		e.preventDefault();
@@ -163,6 +159,8 @@
 	<Info info={info} />
 	<input type="text" bind:value={$citizen.firstname} placeholder="Firstname" />
 	<input type="text" bind:value={$citizen.lastname} placeholder="Lastname" />
+	<!-- <input bind:value={$citizen.birthdate} placeholder="Birthdate" /> -->
+	<MaskInput {maskString} {mask} bind:value={$citizen.birthdate} placeholder="Birthdate YYYY-MM-DD" />
 	<input type="text" bind:value={$citizen.nation} placeholder="Nation" />
 	<input type="text" bind:value={$citizen.nationalId} placeholder="National ID" />
 	<input type="text" bind:value={$citizen.documentation} placeholder="Documentation" />
