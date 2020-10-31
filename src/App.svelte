@@ -7,10 +7,10 @@
 	import appConfig from '@@Config/app';
 
 	const routes = {
-    '/': Home,
-    ...KYCRoutes,
+	'/': Home,
+	...KYCRoutes,
 	...AccountRoutes,
-    "*": Home,
+	"*": Home,
 	};
 
 	// execution

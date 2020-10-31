@@ -1,182 +1,71 @@
 <script lang="typescript">
-	import { Crypt } from 'hybrid-crypto-js';
 	import { push } from 'svelte-spa-router';
-	import axios from 'axios';
 	import MaskInput from "svelte-input-mask/MaskInput.svelte";
 
-	import appConfig from '@@Config/app';
 	import GoBack from '@@Components/GoBack.svelte';
 	import Submit from '@@Components/Submit.svelte';
 	import Info from '@@Components/Info.svelte';
 	import Header from '@@Components/Header.svelte';
 	import { citizen } from "@@Stores/citizen";
 	import { users } from "@@Stores/users";
-	import { verifyDocumentationUrl } from '@@Modules/identity';
-	import { generateKeyPair } from '@@Modules/crypto';
+	import { createIdentity } from '@@Modules/identity';
+	import { getUser } from '@@Modules/user';
 
-	import type { InfoType } from '@@Components/Info';
-	import type { SharedWithKeypair } from '@@Modules/user';
-	import type { WorkerType } from '@@Modules/job';
+	import type { InfoType } from '@@Modules/info';
 
 	const maskString = 'YYYY-MM-DD';
 	const mask = '0000-00-00';
-
-	const username = $users.loggedInUser;
-	const wallet = $users.users.filter(u => u.username === username)[0].wallet;
-	const keypair = $users.users.filter(u => u.username === username)[0].keypair;
-	const id = $users.users.filter(u => u.username === username)[0].id;
-
-	var crypt = new Crypt();
+	const user = getUser($users);
 
 	let info: InfoType;
-    $: info = { value: '', type: '', loading: false };
+	$: info = { value: '', type: '', loading: false };
+
+	const setInfo = (i: InfoType) => info = i;
 
 	$: submitIsDisabled = 
 		$citizen.firstname.length === 0
 		|| $citizen.lastname.length === 0
 		|| $citizen.nation.length === 0
 		|| $citizen.nationalId.length === 0
+		|| $citizen.birthdate.length !== 10
 		|| $citizen.documentation.length === 0;
 
-	const createIdentity = async (e: Event) => {
+	const onclickCreateIdentity = async (e: Event) => {
 		e.preventDefault();
+		info = await createIdentity($citizen, user, setInfo);
 
-		info.type = 'info';
-		info.value = 'Submitting...';
-		info.loading = true;
-
-		if (!verifyDocumentationUrl($citizen.documentation)) {
-			info.type = 'error';
-			info.value = 'Documentation URL is incorrect. Format: https://imgur.com/a/5a15vOr';
-			info.loading = false;
-			return;
+		if (info.type === 'info') {
+			$users.users.filter(u => u.username === user.username)[0].identity = {...$citizen};
+			setTimeout(() => push('/'), 1500);
 		}
-
-		// create keypair (to be shared later)
-		const keypairToShare = await generateKeyPair();
-
-		// encrypt the identity with the publicKey
-		const encryptedIdentity = crypt.encrypt(keypairToShare.publicKey, JSON.stringify($citizen));
-		
-		// post the identity to the nerves
-		const resIdentity = await axios
-			.post(appConfig.nerves.identity.url, {
-				encryptedIdentity,
-				user: { username, wallet },
-			})
-			.catch(e => {
-				info.type = 'error';
-				info.value = e.message;
-				info.loading = false;
-			});
-		
-		if (!resIdentity) return;
-		if (!resIdentity.data.success) {
-			info.type = 'error';
-			info.value = resIdentity.data.message;
-			info.loading = false;
-			return;
-		}
-
-		info.type = 'info';
-		info.value = resIdentity.data.message;
-		
-		// create verification jobs
-		const resJob = await axios
-			.post(appConfig.nerves.job.url, {
-				type: 'confirmation',
-				data: encryptedIdentity,
-				chaincode: 'identity',
-				key: id,
-				user: { username, wallet },
-			})
-			.catch(e => {
-				info.type = 'error';
-				info.value = e.message;
-				info.loading = false;
-			});
-
-		if (!resJob) return;
-		if (!resJob.data.success) {
-			info.type = 'error';
-			info.value = resJob.data.message;
-			info.loading = false;
-			return;
-		}
-
-		info.type = 'info';
-		info.value = resJob.data.message;
-
-		const { workersIds, jobId } = resJob.data;
-
-		// share the keypair with the workers
-		const myEncryptedKeyPair = crypt.encrypt(keypair.publicKey, JSON.stringify(keypairToShare));
-		const decryptedKeypairRaw = crypt.decrypt(keypair.privateKey, myEncryptedKeyPair);
-		const decryptedKeypair = JSON.parse(decryptedKeypairRaw.message);
-		console.log({keypairToShare, myEncryptedKeyPair, decryptedKeypairRaw, decryptedKeypair});
-		const sharedWith = workersIds.reduce(
-      (acc: SharedWithKeypair, worker: WorkerType) => {
-        return ({
-          ...acc,
-          [worker._id]: {keypair: crypt.encrypt(worker.publicKey, JSON.stringify(keypairToShare))},
-        });
-      },
-      {},
-    );
-
-		const resKeypair = await axios
-			.post(appConfig.nerves.user.keypair.url, {
-				sharedWith,
-				groupId: jobId,
-				myEncryptedKeyPair,
-				type: 'job',
-				user: { username, wallet },
-			})
-			.catch(e => {
-				info.type = 'error';
-				info.value = e.message;
-				info.loading = false;
-			});
-
-		if (!resKeypair) return;
-		if (!resKeypair.data.success) {
-			info.type = 'error';
-			info.value = resKeypair.data.message;
-			info.loading = false;
-			return;
-		}
-
-		$users.users.filter(u => u.username === username)[0].identity = {...$citizen};
-		info.type = 'info';
-		info.value = 'Your identity have been successfully created. Wait for confirmations. You will be redirected.';
-		setTimeout(() => push('/'), 1500);
-	};
+	}
+	
 </script>
 
 <Header title="Get verified" />
 
-<form class="content">
+<form>
 	<Info info={info} />
 	<input type="text" bind:value={$citizen.firstname} placeholder="Firstname" />
 	<input type="text" bind:value={$citizen.lastname} placeholder="Lastname" />
-	<!-- <input bind:value={$citizen.birthdate} placeholder="Birthdate" /> -->
-	<MaskInput {maskString} {mask} bind:value={$citizen.birthdate} placeholder="Birthdate YYYY-MM-DD" />
+	<MaskInput {maskString} {mask} on:change={e => $citizen.birthdate = e.detail.inputState.maskedValue} placeholder="Birthdate YYYY-MM-DD" />
 	<input type="text" bind:value={$citizen.nation} placeholder="Nation" />
 	<input type="text" bind:value={$citizen.nationalId} placeholder="National ID" />
 	<input type="text" bind:value={$citizen.documentation} placeholder="Documentation" />
 	Copy-paste the url of your imgur gallery in the documentation field. 
 	<br /> <a href="https://imgur.com/a/5a15vOr" target="_blank">https://imgur.com/a/5a15vOr</a>
-	<Submit onclick={createIdentity} disabled={submitIsDisabled} />
+	<Submit onclick={onclickCreateIdentity} disabled={submitIsDisabled} />
 </form>
 
 <GoBack />
 
 <style>
-  .content {
+	form {
 		padding-bottom: 3vw;
 		width: 100%;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-  }
+	}
 </style>
+

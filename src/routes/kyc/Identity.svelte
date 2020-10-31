@@ -11,7 +11,7 @@
 	import { users } from "@@Stores/users";
 	import { request } from '@@Modules/nerves';
 
-	import type { InfoType } from '@@Components/Info';
+	import type { InfoType } from '@@Modules/info';
 	import type { IdentityResponseObject } from '@@Modules/identity';
 
 	let info: InfoType;

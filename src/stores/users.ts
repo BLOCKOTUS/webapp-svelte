@@ -1,12 +1,6 @@
 import { writable, Writable } from 'svelte/store';
 
-import type { User } from '@@Modules/user';
-
-type UsersType = {
-  loggedInUser: string,
-  users: Array<User>,
-  tmp: User,
-};
+import type { UsersType } from '@@Modules/user';
 
 const localUsers = localStorage.getItem("store.users");
 

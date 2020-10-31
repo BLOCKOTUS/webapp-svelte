@@ -12,7 +12,7 @@
   import { users } from "@@Stores/users";
   import { request } from '@@Modules/nerves';
 
-  import type { InfoType } from '@@Components/Info';
+  import type { InfoType } from '@@Modules/info';
   import type { RequestIdentityResponse, IdentityType } from '@@Modules/identity';
   import type { RequestJobResponse } from '@@Modules/job';
 
@@ -26,7 +26,7 @@
   let decryptedOriginalIdentity: IdentityType;
   let resOriginalData: RequestIdentityResponse;
   $: info = { value: '', type: '', loading: true };
-  $: decryptedOriginalIdentity = { firstname: '', lastname: '', nation: '', nationalId: '', documentation: '' };
+  $: decryptedOriginalIdentity = { firstname: '', lastname: '', nation: '', nationalId: '', documentation: '', birthdate: '' };
   $: resOriginalData = null;
 
   const onClickApproveRefuse = async (i: string, result: 0 | 1) => {

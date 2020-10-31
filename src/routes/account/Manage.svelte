@@ -5,7 +5,7 @@
 	import Header from '@@Components/Header.svelte';
 	import Info from '@@Components/Info.svelte';
 
-    import type { InfoType } from '@@Components/Info';
+    import type { InfoType } from '@@Modules/info';
 
 	let info: InfoType;
     $: info = { value: '', type: '', loading: false };

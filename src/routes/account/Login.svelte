@@ -8,7 +8,7 @@
     import { users } from "@@Stores/users";
 
     import type { User, Keypair } from '@@Modules/user';
-    import type { InfoType } from '@@Components/Info';
+    import type { InfoType } from '@@Modules/info';
 
     const crypt = new Crypt();
 

@@ -9,7 +9,7 @@
 	import { users } from "@@Stores/users";
 	import { request } from '@@Modules/nerves';
 
-    import type { InfoType } from '@@Components/Info';
+    import type { InfoType } from '@@Modules/info';
 
 	const username = $users.loggedInUser;
 	const wallet = $users.users.filter(u => u.username === username)[0].wallet;

@@ -1,6 +1,4 @@
 <script lang="typescript">
-	import { RSA } from 'hybrid-crypto-js';
-
 	import appConfig from '@@Config/app';
 	import GoBack from '@@Components/GoBack.svelte';
 	import Submit from '@@Components/Submit.svelte';
@@ -10,12 +8,10 @@
 	import { request } from '@@Modules/nerves';
 	import { generateKeyPair } from '@@Modules/crypto';
 
-    import type { InfoType } from '@@Components/Info';
+    import type { InfoType } from '@@Modules/info';
 
 	let info: InfoType;
     $: info = { value: '', type: '', loading: false };
-
-	const rsa = new RSA();
 
 	const register = async (e: Event) => {
 		e.preventDefault();

@@ -1,5 +1,5 @@
 <script lang="typescript">
-	import type { InfoType } from './Info';
+	import type { InfoType } from '@@Modules/info';
 
 	export let info: InfoType;
 </script>
