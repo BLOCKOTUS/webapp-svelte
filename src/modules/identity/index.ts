@@ -49,7 +49,7 @@ export const verifyDocumentationUrl = (url: string): boolean => {
 export const createIdentity = async (
     citizen: IdentityType, 
     user: User,
-    setInfo: (IdentityType) => void,
+    setInfo: (info: InfoType) => void,
 ): Promise<InfoType> => {
 
     let info = makeInfoProps('info', 'Submitting...', true);

@@ -35,8 +35,11 @@
 		info = await createIdentity($citizen, user, setInfo);
 
 		if (info.type === 'info') {
-			$users.users.filter(u => u.username === user.username)[0].identity = {...$citizen};
-			setTimeout(() => push('/'), 1500);
+			let loggedInUser = $users.users.filter(u => u.username === $users.loggedInUser)[0];
+			let loggedIndex = $users.users.indexOf(loggedInUser);
+			loggedInUser = { ...loggedInUser, identity: {...$citizen} };
+			$users.users[loggedIndex] = loggedInUser;
+			setTimeout(() => push('/'), 3000);
 		}
 	}
 	
