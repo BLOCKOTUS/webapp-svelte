@@ -2,7 +2,7 @@ import { RSA } from 'hybrid-crypto-js';
 import md5 from 'md5';
 
 import type { Keypair } from '@@Modules/user';
-import type { IdentityType } from '@@Modules/identity';
+import type { IdentityType, IdentityTypeWithKYC } from '@@Modules/identity';
 
 export type Encrypted = string;
 
@@ -18,5 +18,5 @@ export const generateKeyPair = (): Promise<Keypair> => {
     });
 };
 
-export const uniqueHashFromIdentity = (identity: IdentityType): string =>
+export const uniqueHashFromIdentity = (identity: IdentityType | IdentityTypeWithKYC): string =>
     md5(`${identity.nation}-${identity.nationalId}-${identity.birthdate}`);

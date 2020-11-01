@@ -1,5 +1,6 @@
 import type { AxiosResponse } from 'axios';
 import { Crypt } from 'hybrid-crypto-js';
+import {isEqual } from 'lodash';
 
 import appConfig from '@@Config/app';
 import { request } from '@@Modules/nerves';
@@ -276,3 +277,9 @@ export const decryptIdentity = (
     const rawIdentity = crypt.decrypt(keypair.privateKey, encryptedIdentity);
     return JSON.parse(rawIdentity.message);
 };
+
+export const canApproveIdentityVerificationJob = (
+    verificationJob: [IdentityTypeWithKYC, IdentityTypeWithKYC],
+): boolean => 
+    uniqueHashFromIdentity(verificationJob[0]) === uniqueHashFromIdentity(verificationJob[1])
+    && isEqual(verificationJob[0], verificationJob[1]);

@@ -8,7 +8,7 @@
   import { users } from "@@Stores/users";
   import { onClickApproveRefuse } from '@@Modules/job';
 	import { getUser } from '@@Modules/user';
-	import { getIdentityVerificationJob } from '@@Modules/identity';
+	import { getIdentityVerificationJob, canApproveIdentityVerificationJob } from '@@Modules/identity';
 
   import type { InfoType } from '@@Modules/info';
 
@@ -55,7 +55,7 @@
     </table>
   </div>
   <div class="refuse_approve_button">
-    <Approve label="Approve" onclick={() => onClickApproveRefuse(jobId, 1, user, setInfo)}></Approve>
+    <Approve label="Approve" onclick={() => onClickApproveRefuse(jobId, 1, user, setInfo)} disabled={!canApproveIdentityVerificationJob(identityVerificationJobResult)}></Approve>
     <Refuse label="Refuse" onclick={() => onClickApproveRefuse(jobId, 0,  user, setInfo)}></Refuse>
   </div>
 {/await}
