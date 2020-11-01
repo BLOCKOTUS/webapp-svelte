@@ -1,15 +1,17 @@
 import axios, { AxiosPromise } from 'axios';
 
+import type { Wallet } from '@@Modules/user';
+
 export const request = ({
   username = '',
-  wallet = '',
+  wallet,
   method,
   url,
   data = {},
   params = {},
 }: {
   username?: string;
-  wallet?: string;
+  wallet?: Wallet;
   method: 'POST' | 'GET';
   url: string;
   data?: Record<string, unknown>;

@@ -4,7 +4,6 @@
 	import GoBack from '@@Components/GoBack.svelte';
 	import Header from '@@Components/Header.svelte';
 	import Info from '@@Components/Info.svelte';
-
     import type { InfoType } from '@@Modules/info';
 
 	let info: InfoType;

@@ -10,10 +10,10 @@ import { getJob, decryptJob, getJobList } from '@@Modules/job';
 import { getEncryptedKeypair, decryptKeypair } from '@@Modules/user';
 import type { InfoType } from '@@Modules/info';
 import type { RequestReponseObject } from '@@Modules/nerves';
-import type { User, Keypair } from '@@Modules/user';
+import type { User } from '@@Modules/user';
 import type { SharedWithKeypair } from '@@Modules/user';
 import type { WorkerType } from '@@Modules/job';
-import type { Encrypted } from '@@Modules/crypto';
+import type { Encrypted, Keypair } from '@@Modules/crypto';
 
 const crypt = new Crypt();
 
@@ -230,7 +230,7 @@ export const getIdentityVerificationJob = async (
     const resJob = await getJob(jobId, user);
     if( !resJob || !resJob.data.success) {
       setInfo(makeInfoProps('error', resJob.data.message || 'error', false));
-      return;
+      return null;
     }
     setInfo(makeInfoProps('info', resJob.data.message, true));
     const job = resJob.data.job;
@@ -240,7 +240,7 @@ export const getIdentityVerificationJob = async (
     const resEncryptedKeypair = await getEncryptedKeypair(keypairId, user);
     if( !resEncryptedKeypair || !resEncryptedKeypair.data.success) {
       setInfo(makeInfoProps('error', resEncryptedKeypair.data.message || 'error', false));
-      return;
+      return null;
     }
     setInfo(makeInfoProps('info', resEncryptedKeypair.data.message, true));
     const sharedKeypair = decryptKeypair(user, resEncryptedKeypair.data.keypair);
@@ -250,7 +250,7 @@ export const getIdentityVerificationJob = async (
     const resCreatorIdentity = await getIdentity(user, job.creator);
     if( !resCreatorIdentity || !resCreatorIdentity.data.success) {
       setInfo(makeInfoProps('error', resCreatorIdentity.data.message || 'error', false));
-      return;
+      return null;
     }
     setInfo(makeInfoProps('info', '', false));
     const creatorIdentity = decryptIdentity(sharedKeypair, resCreatorIdentity.data.identity.encryptedIdentity);
@@ -279,7 +279,8 @@ export const decryptIdentity = (
 };
 
 export const canApproveIdentityVerificationJob = (
-    verificationJob: [IdentityTypeWithKYC, IdentityTypeWithKYC],
+    verificationJob: [IdentityTypeWithKYC, IdentityTypeWithKYC] | null,
 ): boolean => 
-    uniqueHashFromIdentity(verificationJob[0]) === uniqueHashFromIdentity(verificationJob[1])
+    verificationJob
+    && uniqueHashFromIdentity(verificationJob[0]) === uniqueHashFromIdentity(verificationJob[1])
     && isEqual(verificationJob[0], verificationJob[1]);

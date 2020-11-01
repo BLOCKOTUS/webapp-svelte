@@ -4,22 +4,26 @@ import { Crypt } from 'hybrid-crypto-js';
 import appConfig from '@@Config/app';
 import { request } from '@@Modules/nerves';
 import type { RequestReponseObject } from '@@Modules/nerves';
-import type { Encrypted } from '@@Modules/crypto';
+import type { Encrypted, Keypair } from '@@Modules/crypto';
 import type { IdentityType } from '@@Modules/identity';
-
-export type Keypair = {
-    publicKey: string;
-    privateKey: string;
-} 
 
 export type Account = {
     id: string;
     username: string;
 }
 
+export type Wallet = {
+    credentials: {
+        certificate: string;
+        privateKey: string;
+    }
+    mspId: string;
+    type: string;
+}
+
 export type User = Account & {
     id: string;
-    wallet: string;
+    wallet: Wallet;
     keypair: Keypair;
     username: string;
     identity?: IdentityType;

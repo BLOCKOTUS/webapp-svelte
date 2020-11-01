@@ -18,7 +18,6 @@
 
 	let info: InfoType;
 	$: info = { value: '', type: '', loading: false };
-
 	const setInfo = (i: InfoType) => info = i;
 
 	$: submitIsDisabled = 

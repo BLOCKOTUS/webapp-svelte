@@ -7,8 +7,8 @@ import { request } from '@@Modules/nerves';
 import { makeInfoProps } from '@@Modules/info';
 import type { RequestReponseObject } from '@@Modules/nerves';
 import type { InfoType } from '@@Modules/info';
-import type { User, Keypair } from '@@Modules/user';
-import type { Encrypted } from '@@Modules/crypto';
+import type { User } from '@@Modules/user';
+import type { Encrypted, Keypair } from '@@Modules/crypto';
 
 export type JobType = {
     chaincode: string;
