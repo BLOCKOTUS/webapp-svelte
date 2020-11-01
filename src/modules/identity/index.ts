@@ -5,13 +5,14 @@ import appConfig from '@@Config/app';
 import { request } from '@@Modules/nerves';
 import { generateKeyPair, uniqueHashFromIdentity } from '@@Modules/crypto';
 import { makeInfoProps } from '@@Modules/info';
-import { getJob } from '@@Modules/job';
-import { getKeypair } from '@@Modules/user';
+import { getJob, decryptJob } from '@@Modules/job';
+import { getEncryptedKeypair, decryptKeypair } from '@@Modules/user';
 import type { InfoType } from '@@Modules/info';
 import type { RequestReponseObject } from '@@Modules/nerves';
-import type { User } from '@@Modules/user';
+import type { User, Keypair } from '@@Modules/user';
 import type { SharedWithKeypair } from '@@Modules/user';
 import type { WorkerType } from '@@Modules/job';
+import type { Encrypted } from '@@Modules/crypto';
 
 const crypt = new Crypt();
 
@@ -35,7 +36,7 @@ export type WithKYC = {
 
 export type IdentityTypeWithKYC = IdentityType & WithKYC;
 
-type EncryptedIndentity = Record<string, unknown>;
+type EncryptedIndentity = string;
 
 export type IdentityResponseObject = WithKYC & { 
     encryptedIdentity: EncryptedIndentity;
@@ -51,6 +52,19 @@ export const verifyDocumentationUrl = (url: string): boolean => {
     const regex = /^https?:\/\/imgur.com\/a\/([\w]{7})$/gm;
     return regex.test(url);
 };
+
+export const getIdentity = async (
+    user: User,
+    id?: string,
+): Promise<RequestIdentityResponse> => await request({
+    username: user.username,
+    wallet: user.wallet,
+    url: appConfig.nerves.identity.url,
+    method: 'GET',
+    params: {
+      identityId: id,
+    },
+});
 
 export const createIdentity = async (
     citizen: IdentityType, 
@@ -129,12 +143,12 @@ export const createIdentity = async (
     const { workersIds, jobId } = resJob.data;
 
     // share the keypair with the workers
-    const myEncryptedKeyPair = crypt.encrypt(user.keypair.publicKey, JSON.stringify(keypairToShare));
+    const myEncryptedKeyPair = JSON.stringify(crypt.encrypt(user.keypair.publicKey, JSON.stringify(keypairToShare)));
     const sharedWith = workersIds.reduce(
         (acc: SharedWithKeypair, worker: WorkerType) => {
             return ({
                 ...acc,
-                [worker._id]: {keypair: crypt.encrypt(worker.publicKey, JSON.stringify(keypairToShare))},
+                [worker._id]: { keypair: JSON.stringify(crypt.encrypt(worker.publicKey, JSON.stringify(keypairToShare))) },
             });
         },
         {},
@@ -174,64 +188,54 @@ export const getIdentityVerificationJob = async (
     user: User,
     setInfo: (info: InfoType) => void,
 ): Promise<[IdentityTypeWithKYC, IdentityTypeWithKYC] | null> => {
-    // get job details
+    // get job
     const resJob = await getJob(jobId, user);
     if( !resJob || !resJob.data.success) {
       setInfo(makeInfoProps('error', resJob.data.message || 'error', false));
       return;
     }
-
-    const job = resJob.data.job;
     setInfo(makeInfoProps('info', resJob.data.message, true));
+    const job = resJob.data.job;
 
-    // get shared keypairs
+    // get shared keypair to decrypt the job
     const keypairId = `job||${job.creator}||${jobId}`;
-    const resSharedKey = await getKeypair(keypairId, user);
-    if( !resSharedKey || !resSharedKey.data.success) {
-      setInfo(makeInfoProps('error', resSharedKey.data.message || 'error', false));
+    const resEncryptedKeypair = await getEncryptedKeypair(keypairId, user);
+    if( !resEncryptedKeypair || !resEncryptedKeypair.data.success) {
+      setInfo(makeInfoProps('error', resEncryptedKeypair.data.message || 'error', false));
       return;
     }
+    setInfo(makeInfoProps('info', resEncryptedKeypair.data.message, true));
+    const sharedKeypair = decryptKeypair(user, resEncryptedKeypair.data.keypair);
+    const decryptedJob = decryptJob(sharedKeypair, job.data);
 
-    setInfo(makeInfoProps('info', resSharedKey.data.message, true));
-
-    const crypt = new Crypt();
-
-    const rawSharedKeypair = crypt.decrypt(user.keypair.privateKey, JSON.stringify(resSharedKey.data.keypair));
-    const sharedKeypair = JSON.parse(rawSharedKeypair.message);
-    const decryptedJob = crypt.decrypt(sharedKeypair.privateKey, job.data);
-    const message = JSON.parse(decryptedJob.message);
-
-    // get originalData
-    const resOriginalData = await request({
-      username: user.username,
-      wallet: user.wallet,
-      url: appConfig.nerves.identity.url,
-      method: 'GET',
-      params: {
-        identityId: job.creator,
-      },
-    });
-
-    if( !resOriginalData || !resOriginalData.data.success) {
-      setInfo(makeInfoProps('error', resOriginalData.data.message || 'error', false));
+    // get job creator identity
+    const resCreatorIdentity = await getIdentity(user, job.creator);
+    if( !resCreatorIdentity || !resCreatorIdentity.data.success) {
+      setInfo(makeInfoProps('error', resCreatorIdentity.data.message || 'error', false));
       return;
     }
-
-    const decryptedOriginal = crypt.decrypt(sharedKeypair.privateKey, resOriginalData.data.identity.encryptedIdentity);
-    const decryptedOriginalIdentity = JSON.parse(decryptedOriginal.message);
-
     setInfo(makeInfoProps('info', '', false));
+    const creatorIdentity = decryptIdentity(sharedKeypair, resCreatorIdentity.data.identity.encryptedIdentity);
 
     return [
         {
-            ...message,
-            confirmations: resOriginalData.data.identity.confirmations,
-            kyc: resOriginalData.data.identity.kyc,
+            ...decryptedJob,
+            confirmations: resCreatorIdentity.data.identity.confirmations,
+            kyc: resCreatorIdentity.data.identity.kyc,
         },
         {
-            ...decryptedOriginalIdentity,
-            confirmations: resOriginalData.data.identity.confirmations,
-            kyc: resOriginalData.data.identity.kyc,
+            ...creatorIdentity,
+            confirmations: resCreatorIdentity.data.identity.confirmations,
+            kyc: resCreatorIdentity.data.identity.kyc,
         },
     ];
+};
+
+export const decryptIdentity = (
+    keypair: Keypair,
+    encryptedIdentity: Encrypted,
+): IdentityType => {
+    const crypt = new Crypt();
+    const rawIdentity = crypt.decrypt(keypair.privateKey, encryptedIdentity);
+    return JSON.parse(rawIdentity.message);
 };

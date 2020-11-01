@@ -1,4 +1,5 @@
 import type { AxiosResponse } from 'axios';
+import { Crypt } from 'hybrid-crypto-js';
 
 import appConfig from '@@Config/app';
 import { request } from '@@Modules/nerves';
@@ -49,7 +50,7 @@ export const getUser = (users: UsersType): User => {
     return user;
 };
 
-export const getKeypair = async (
+export const getEncryptedKeypair = async (
     keypairId: string,
     user: User,
 ): Promise<RequestUserKeypairResponse> => await request({
@@ -61,3 +62,12 @@ export const getKeypair = async (
             keypairId,
         },          
     });
+
+export const decryptKeypair = (
+    user: User,
+    encryptedKeypair: Encrypted,
+): Keypair => {
+    const crypt = new Crypt();
+    const rawSharedKeypair = crypt.decrypt(user.keypair.privateKey, encryptedKeypair);
+    return JSON.parse(rawSharedKeypair.message);
+};

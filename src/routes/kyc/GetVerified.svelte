@@ -10,7 +10,6 @@
 	import { users } from "@@Stores/users";
 	import { createIdentity } from '@@Modules/identity';
 	import { getUser } from '@@Modules/user';
-
 	import type { InfoType } from '@@Modules/info';
 
 	const maskString = 'YYYY-MM-DD';
