@@ -14,7 +14,7 @@
 <Button label="BLOCKOTUS Home" onclick={() => push('/home')} />
 <Button label="My identity" onclick={() => push('/kyc/identity')} disabled={!loggedUser.identity} />
 <Button label="Create identity" onclick={() => push('/kyc/getverified')} disabled={loggedUser.identity} />
-<Button label="Verify" onclick={() => push('/kyc/jobs')} />
+<Button label="Verification jobs" onclick={() => push('/kyc/jobs')} />
 
 <style>
 

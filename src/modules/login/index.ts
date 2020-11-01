@@ -32,6 +32,9 @@ export const loginUser = (
 ): void => {
     const newUsers = [...users.users, {... users.tmp}];
     users.users = newUsers;
+    users.loggedInUser = `${users.tmp.username}`;
+
+    users.tmp.id = '';
     users.tmp.wallet = null;
     users.tmp.keypair = { publicKey: '', privateKey: '' };
     users.tmp.username = '';
@@ -71,14 +74,14 @@ export const submitLoginIsDisabled = (
     || users.tmp.wallet === null;
 
 export const register = (
-    users: UsersType,
+    username: string,
     keypair: Keypair,
 ): Promise<RequestRegisterResponse> =>
     request({
         method: 'POST',
         url: appConfig.nerves.user.url,
         data: {
-            username: users.tmp.username,
+            username,
             publicKey: keypair.publicKey,
         },
     });
@@ -95,7 +98,7 @@ export const submitRegister = async (
     const keypair = await generateKeyPair();
 
     // get wallet from the network
-    const resRegister = await register(users, keypair);
+    const resRegister = await register(users.tmp.username, keypair);
     if (!resRegister || !resRegister.data.success) {
         setInfo(makeInfoProps('error', resRegister.data.message || 'error', false));
         return;
@@ -110,8 +113,9 @@ export const submitRegister = async (
         keypair,
         id,
     };
-
     users.tmp = user;
     loginUser(users);
+
+    // redirect to home page
     setTimeout(() => push('/'), 1000);
 };

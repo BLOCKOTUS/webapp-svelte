@@ -1,51 +1,41 @@
 <script lang="typescript">
 	import { push } from 'svelte-spa-router';
 
-	import appConfig from '@@Config/app';
 	import GoHome from '@@Components/GoHome.svelte';
 	import Button from '@@Components/Button.svelte';
 	import Info from '@@Components/Info.svelte';
 	import Header from '@@Components/Header.svelte';
 	import { users } from "@@Stores/users";
-	import { request } from '@@Modules/nerves';
-
+	import { getUser } from '@@Modules/user';
+	import { getJobList } from '@@Modules/job';
+	import { makeInfoProps } from '@@Modules/info';
     import type { InfoType } from '@@Modules/info';
-
-	const username = $users.loggedInUser;
-	const wallet = $users.users.filter(u => u.username === username)[0].wallet;
 
 	$: list = [];
 	let info: InfoType;
-    $: info = { value: '', type: '', loading: true };
+    $: info = { value: 'Loading job list...', type: 'info', loading: true };
+	const setInfo = (i: InfoType) => info = i;
+	const user = getUser($users);
 
 	const onClickVerify = (i: number) => push(`/kyc/verify/${i}`);
 
-	request({
-		username,
-		wallet,
-		url: appConfig.nerves.job.list.url,
-		method: 'GET',
-		params: {
-			status: 'pending',
-		},
-	})
-		.catch(e => {
-			info.type = 'error';
-			info.value = e.message;
-			info.loading = false;
-		})
-		.then(resList =>{
-			if (resList) {
-				list = resList.data.list;
-				localStorage.setItem('job.list.pending', JSON.stringify(list));
-				if (list.length === 0) info.value = 'You have no jobs assigned.';
-				info.loading = false;
-			}
-		});
+	const loadJobList = async () => {
+		const resJobList = await getJobList({user, status: 'pending'});
+		if (!resJobList || !resJobList.data.success) {
+			setInfo(makeInfoProps('error', resJobList.data.message || 'error', false));
+			return;
+		}
 
+		list = resJobList.data.list;
+		localStorage.setItem('job.list.pending', JSON.stringify(list));
+		if (list.length === 0) setInfo(makeInfoProps('info', 'You have no job assigned.', false));
+		else setInfo(makeInfoProps('info', '', false));
+	};
+
+	loadJobList();
 </script>
 
-<Header title="Verify" />
+<Header title="Verification jobs" />
 <Info info={info} />
 
 <table>

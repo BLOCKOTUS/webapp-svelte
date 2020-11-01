@@ -1,6 +1,7 @@
-import type { AxiosResponse } from 'axios';
+import { push } from 'svelte-spa-router';
 import { Crypt } from 'hybrid-crypto-js';
 import {isEqual } from 'lodash';
+import type { AxiosResponse } from 'axios';
 
 import appConfig from '@@Config/app';
 import { request } from '@@Modules/nerves';
@@ -11,7 +12,7 @@ import { getEncryptedKeypair, decryptKeypair } from '@@Modules/user';
 import type { InfoType } from '@@Modules/info';
 import type { RequestReponseObject } from '@@Modules/nerves';
 import type { User } from '@@Modules/user';
-import type { SharedWithKeypair } from '@@Modules/user';
+import type { SharedWithKeypair, UsersType } from '@@Modules/user';
 import type { WorkerType } from '@@Modules/job';
 import type { Encrypted, Keypair } from '@@Modules/crypto';
 
@@ -79,7 +80,7 @@ export const getMyIdentity = async (
     const encryptedIdentity = resIdentity.data.identity.encryptedIdentity;
 
     // get job list containing the jobId used for identity verification
-    const resJobList = await getJobList(user, 'identity', user.id);
+    const resJobList = await getJobList({user, chaincode: 'identity', key: user.id});
     if (!resJobList || !resJobList.data.success){
         setInfo(makeInfoProps('error', resJobList.data.message || 'error', false));
     }
@@ -284,3 +285,30 @@ export const canApproveIdentityVerificationJob = (
     verificationJob
     && uniqueHashFromIdentity(verificationJob[0]) === uniqueHashFromIdentity(verificationJob[1])
     && isEqual(verificationJob[0], verificationJob[1]);
+
+export const submitCreateIdentity = async (
+    e: Event,
+    user: User,
+    users: UsersType,
+    citizen: IdentityType,
+    setInfo: (info: InfoType) => void,
+): Promise<void> => {
+    e.preventDefault();
+    const info = await createIdentity(citizen, user, setInfo);
+
+    if (info.type === 'info') {
+        let loggedInUser = users.users.filter(u => u.username === users.loggedInUser)[0];
+        const loggedIndex = users.users.indexOf(loggedInUser);
+        loggedInUser = { ...loggedInUser, identity: {...citizen} };
+        users.users[loggedIndex] = loggedInUser;
+        setTimeout(() => push('/'), 3000);
+    }
+};
+
+export const submitRegisterIsDisabled = (citizen: IdentityType): boolean =>
+    citizen.firstname.length === 0
+    || citizen.lastname.length === 0
+    || citizen.nation.length === 0
+    || citizen.nationalId.length === 0
+    || citizen.birthdate.length !== 10
+    || citizen.documentation.length === 0;

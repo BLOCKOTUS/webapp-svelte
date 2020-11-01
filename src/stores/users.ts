@@ -9,7 +9,7 @@ const setupUsers: UsersType = {
     users: [],
     tmp: {
       id: '',
-      wallet: '',
+      wallet: null,
       keypair: {
         privateKey: '',
         publicKey: '',

@@ -1,5 +1,4 @@
 <script lang="typescript">
-	import { push } from 'svelte-spa-router';
 	import MaskInput from "svelte-input-mask/MaskInput.svelte";
 
 	import GoBack from '@@Components/GoBack.svelte';
@@ -8,7 +7,7 @@
 	import Header from '@@Components/Header.svelte';
 	import { citizen } from "@@Stores/citizen";
 	import { users } from "@@Stores/users";
-	import { createIdentity } from '@@Modules/identity';
+	import { submitCreateIdentity, submitRegisterIsDisabled } from '@@Modules/identity';
 	import { getUser } from '@@Modules/user';
 	import type { InfoType } from '@@Modules/info';
 
@@ -20,27 +19,7 @@
 	$: info = { value: '', type: '', loading: false };
 	const setInfo = (i: InfoType) => info = i;
 
-	$: submitIsDisabled = 
-		$citizen.firstname.length === 0
-		|| $citizen.lastname.length === 0
-		|| $citizen.nation.length === 0
-		|| $citizen.nationalId.length === 0
-		|| $citizen.birthdate.length !== 10
-		|| $citizen.documentation.length === 0;
-
-	const onclickCreateIdentity = async (e: Event) => {
-		e.preventDefault();
-		info = await createIdentity($citizen, user, setInfo);
-
-		if (info.type === 'info') {
-			let loggedInUser = $users.users.filter(u => u.username === $users.loggedInUser)[0];
-			let loggedIndex = $users.users.indexOf(loggedInUser);
-			loggedInUser = { ...loggedInUser, identity: {...$citizen} };
-			$users.users[loggedIndex] = loggedInUser;
-			setTimeout(() => push('/'), 3000);
-		}
-	}
-	
+	$: submitIsDisabled = submitRegisterIsDisabled($citizen);
 </script>
 
 <Header title="Get verified" />
@@ -55,7 +34,7 @@
 	<input type="text" bind:value={$citizen.documentation} placeholder="Documentation" />
 	Copy-paste the url of your imgur gallery in the documentation field. 
 	<br /> <a href="https://imgur.com/a/5a15vOr" target="_blank">https://imgur.com/a/5a15vOr</a>
-	<Submit onclick={onclickCreateIdentity} disabled={submitIsDisabled} />
+	<Submit onclick={e => submitCreateIdentity(e, user, $users, $citizen, setInfo)} disabled={submitIsDisabled} />
 </form>
 
 <GoBack />

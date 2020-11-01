@@ -90,10 +90,17 @@ export const decryptJob = (
 };
 
 export const getJobList = (
-    user: User,
-    chaincode: string,
-    key: string,
-): Promise<RequestJobListResponse> => 
+    {
+        user,
+        chaincode,
+        key,
+        status,
+    }: {
+        user: User,
+        chaincode?: string,
+        key?: string,
+        status?: string,
+    }): Promise<RequestJobListResponse> => 
     request({
         username: user.username,
         wallet: user.wallet,
@@ -102,5 +109,6 @@ export const getJobList = (
         params: {
             chaincode,
             key,
+            status,
         },
     });

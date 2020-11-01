@@ -10,9 +10,9 @@
 
 	let info: InfoType;
     $: info = { value: 'Loading your identity...', type: 'info', loading: true };
-
 	const setInfo = (i: InfoType) => info = i;
 	const user = getUser($users);
+	
 	const getMyIdentityPromise = getMyIdentity(user, setInfo);
 </script>
 
