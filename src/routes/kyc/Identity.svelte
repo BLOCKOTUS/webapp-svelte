@@ -12,12 +12,13 @@
 	import { request } from '@@Modules/nerves';
 
 	import type { InfoType } from '@@Modules/info';
-	import type { IdentityResponseObject } from '@@Modules/identity';
+	import type { IdentityResponseObject, IdentityTypeWithKYC } from '@@Modules/identity';
 
 	let info: InfoType;
     $: info = { value: 'Loading your identity...', type: 'info', loading: true };
 
-	$: identity = null;
+	let identityWithKyc: IdentityTypeWithKYC;
+	$: identityWithKyc = null;
 	let resIdentity: IdentityResponseObject;
 	$: resIdentity = null;
 
@@ -50,7 +51,7 @@
 
 				resIdentity = resId.data.identity;
 				var encryptedIdentity = resIdentity.encryptedIdentity;
-				console.log({encryptedIdentity})
+				
 				// get job Id
 				info.value = 'Requesting the jobId used when creating your identity...';
 				const resJobId = await request({
@@ -100,18 +101,18 @@
 				info.loading = false;
 				info.value = '';
 
-				identity = JSON.parse(decryptedIdentity.message);
+				identityWithKyc = JSON.parse(decryptedIdentity.message);
+				identityWithKyc.kyc = resIdentity.kyc;
+				identityWithKyc.confirmations = resIdentity.confirmations;
 			}
 		});
 </script>
 
 <Header title="Identity" />
 <Info info={info} />
-{#if identity}
+{#if identityWithKyc}
 	<Identity 
-		identity={identity}
-		kyc={resIdentity.kyc}
-		confirmations={resIdentity.confirmations}
+		identity={identityWithKyc}
 	/>
 {/if}
 

@@ -1,8 +1,4 @@
 <script lang="typescript">
-  import { push } from 'svelte-spa-router';
-  import { Crypt } from 'hybrid-crypto-js';
-
-  import appConfig from '@@Config/app';
   import GoBack from '@@Components/GoBack.svelte';
   import Approve from '@@Components/Approve.svelte';
   import Refuse from '@@Components/Refuse.svelte';
@@ -10,170 +6,34 @@
   import Header from '@@Components/Header.svelte';
   import Identity from '@@Components/Identity.svelte';
   import { users } from "@@Stores/users";
-  import { request } from '@@Modules/nerves';
+  import { onClickApproveRefuse } from '@@Modules/job';
+	import { getUser } from '@@Modules/user';
+	import { getIdentityVerificationJob } from '@@Modules/identity';
 
   import type { InfoType } from '@@Modules/info';
-  import type { RequestIdentityResponse, IdentityType } from '@@Modules/identity';
-  import type { RequestJobResponse } from '@@Modules/job';
 
   export let params: { jobId: string };
 
-  const username = $users.loggedInUser;
-  const wallet = $users.users.filter(u => u.username === username)[0].wallet;
-  const keypair = $users.users.filter(u => u.username === username)[0].keypair;
+	const user = getUser($users);
 
   let info: InfoType;
-  let decryptedOriginalIdentity: IdentityType;
-  let resOriginalData: RequestIdentityResponse;
+
   $: info = { value: '', type: '', loading: true };
-  $: decryptedOriginalIdentity = { firstname: '', lastname: '', nation: '', nationalId: '', documentation: '', birthdate: '' };
-  $: resOriginalData = null;
 
-  const onClickApproveRefuse = async (i: string, result: 0 | 1) => {
-    console.log(`Approve ${i}`);
-
-    info.type = 'info';
-    info.value = 'Submiting result...';
-    info.loading = true;
-
-    const resComplete: RequestJobResponse | void = await request({
-      username,
-      wallet,
-      url: appConfig.nerves.job.complete.url,
-      method: 'POST',
-      data: {
-        jobId,
-        result,
-      },
-    }).catch(e => {
-      info.type = 'error';
-      info.value = e.message || 'error';
-      info.loading = false;
-    });
-
-    if(!resComplete) return;
-
-    if(!resComplete.data.success){
-      info.type = 'error';
-      info.value = resComplete.data.message || 'error';
-      info.loading = false;
-      return;
-    }
-
-    info.type = 'info';
-    info.value = 'Job complete. You will be redirected to the job list.';
-    setTimeout(() => push('/kyc/jobs'), 1500);
-  };
+	const setInfo = (i: InfoType) => info = i;
 
   // get job id
   const rawJobList = localStorage.getItem('job.list.pending');
   const jobList = JSON.parse(rawJobList);
   const jobId = jobList[params.jobId].jobId;
 
-  const getDecryptedJob = async (): Promise<IdentityType> => {
-    /* eslint-disable-next-line no-async-promise-executor */
-    return new Promise(async (resolve, reject) => {
-      // get job details
-      const resJob = await request({
-        username,
-        wallet,
-        url: appConfig.nerves.job.url,
-        method: 'GET',
-        params: {
-          jobId,
-        },
-      });
-
-      if(!resJob.data.job  || !resJob.data.success) {
-        info.type = 'error';
-        info.value = resJob.data.message || 'error';
-        info.loading = false;
-        reject();
-        return;
-      }
-
-      const job = resJob.data.job;
-      console.log({job});
-      info.type = 'info';
-      info.value = resJob.data.message;
-
-      // get shared keypairs
-      const keypairId = `job||${job.creator}||${jobId}`;
-      const resSharedKey = await request({
-        username,
-        wallet,
-        url: appConfig.nerves.user.keypair.url,
-        method: 'GET',
-        params: {
-          keypairId,
-        },
-      });
-
-      if( !resSharedKey || !resSharedKey.data.success) {
-        info.type = 'error';
-        info.value = resSharedKey.data.message || 'error';
-        info.loading = false;
-        reject();
-        return;
-      }
-
-      info.type = 'info';
-      info.value = resSharedKey.data.message;
-      info.loading = true;
-
-      console.log(keypair, resSharedKey.data.keypair);
-
-      const crypt = new Crypt();
-
-      const rawSharedKeypair = crypt.decrypt(keypair.privateKey, JSON.stringify(resSharedKey.data.keypair));
-      console.log({rawSharedKeypair});
-
-      const sharedKeypair = JSON.parse(rawSharedKeypair.message);
-      console.log({sharedKeypair});
-
-      const decryptedJob = crypt.decrypt(sharedKeypair.privateKey, job.data);
-      console.log({decryptedJob});
-
-      const message = JSON.parse(decryptedJob.message);
-      console.log({message});
-
-      // get originalData
-      resOriginalData = await request({
-        username,
-        wallet,
-        url: appConfig.nerves.identity.url,
-        method: 'GET',
-        params: {
-          identityId: job.creator,
-        },
-      });
-
-      if( !resOriginalData || !resOriginalData.data.success) {
-        info.type = 'error';
-        info.value = resOriginalData.data.message || 'error';
-        info.loading = false;
-        reject();
-        return;
-      }
-
-      console.log({resOriginalData});
-      const decryptedOriginal = crypt.decrypt(sharedKeypair.privateKey, resOriginalData.data.identity.encryptedIdentity);
-      decryptedOriginalIdentity = JSON.parse(decryptedOriginal.message);
-      console.log({decryptedOriginalIdentity});
-
-      info.value = '';
-      info.loading = false;
-      resolve(message);
-    });
-  };
-
-  const decryptedJobPromise = getDecryptedJob();
+  const identityVerificationJob = getIdentityVerificationJob(jobId, user, setInfo);
 </script>
 
 <Header title="Verify" />
 <Info info={info} />
 
-{#await decryptedJobPromise then decryptedJobResult}
+{#await identityVerificationJob then identityVerificationJobResult}
   <div>
     <table>
       <tr>
@@ -183,24 +43,20 @@
       <tr>
         <td>
           <Identity 
-            identity={decryptedJobResult}
-            kyc={resOriginalData.data.identity.kyc}
-            confirmations={resOriginalData.data.identity.confirmations}
+            identity={identityVerificationJobResult[0]}
           />
         </td>
         <td>
           <Identity 
-            identity={decryptedOriginalIdentity}
-            kyc={resOriginalData.data.identity.kyc}
-            confirmations={resOriginalData.data.identity.confirmations}
+            identity={identityVerificationJobResult[1]}
           />
         </td>
       </tr>
     </table>
   </div>
   <div class="refuse_approve_button">
-    <Approve label="Approve" onclick={() => onClickApproveRefuse(jobId, 1)}></Approve>
-    <Refuse label="Refuse" onclick={() => onClickApproveRefuse(jobId, 0)}></Refuse>
+    <Approve label="Approve" onclick={() => onClickApproveRefuse(jobId, 1, user, setInfo)}></Approve>
+    <Refuse label="Refuse" onclick={() => onClickApproveRefuse(jobId, 0,  user, setInfo)}></Refuse>
   </div>
 {/await}
 

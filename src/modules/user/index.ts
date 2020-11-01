@@ -1,5 +1,7 @@
 import type { AxiosResponse } from 'axios';
 
+import appConfig from '@@Config/app';
+import { request } from '@@Modules/nerves';
 import type { RequestReponseObject } from '@@Modules/nerves';
 import type { Encrypted } from '@@Modules/crypto';
 import type { IdentityType } from '@@Modules/identity';
@@ -36,7 +38,7 @@ export type SharedWithKeypair = Record<string, string>;
 
 export type RequestUserKeypairResponseObject = RequestReponseObject & UserKeypairResponseObject;
 
-export type RequestUserResponse = AxiosResponse<RequestUserKeypairResponseObject>;
+export type RequestUserKeypairResponse = AxiosResponse<RequestUserKeypairResponseObject>;
 
 export const getUser = (users: UsersType): User => {
     const user: User = { id: '', username: '', wallet: '', keypair: { privateKey: '', publicKey: '' } };
@@ -46,3 +48,16 @@ export const getUser = (users: UsersType): User => {
     user.id = users.users.filter(u => u.username === user.username)[0].id;
     return user;
 };
+
+export const getKeypair = async (
+    keypairId: string,
+    user: User,
+): Promise<RequestUserKeypairResponse> => await request({
+        username: user.username,
+        wallet: user.wallet,
+        url: appConfig.nerves.user.keypair.url,
+        method: 'GET',
+        params: {
+            keypairId,
+        },          
+    });

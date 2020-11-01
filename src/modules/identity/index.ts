@@ -5,7 +5,8 @@ import appConfig from '@@Config/app';
 import { request } from '@@Modules/nerves';
 import { generateKeyPair, uniqueHashFromIdentity } from '@@Modules/crypto';
 import { makeInfoProps } from '@@Modules/info';
-
+import { getJob } from '@@Modules/job';
+import { getKeypair } from '@@Modules/user';
 import type { InfoType } from '@@Modules/info';
 import type { RequestReponseObject } from '@@Modules/nerves';
 import type { User } from '@@Modules/user';
@@ -27,12 +28,17 @@ export type IdentityType = {
     documentation: string;
 }
 
-type EncryptedIndentity = Record<string, unknown>;
-
-export type IdentityResponseObject = { 
-    encryptedIdentity: EncryptedIndentity;
+export type WithKYC = {
     confirmations: Confirmations;
     kyc: KYC;
+}
+
+export type IdentityTypeWithKYC = IdentityType & WithKYC;
+
+type EncryptedIndentity = Record<string, unknown>;
+
+export type IdentityResponseObject = WithKYC & { 
+    encryptedIdentity: EncryptedIndentity;
 };
 
 export type RequestIdentityResponseObject = RequestReponseObject & { 
@@ -161,4 +167,71 @@ export const createIdentity = async (
     info = makeInfoProps('info', 'Your identity have been successfully created. Wait for confirmations. You will be redirected.', false);
     setInfo(info);
     return info;
+};
+
+export const getIdentityVerificationJob = async (
+    jobId: string,
+    user: User,
+    setInfo: (info: InfoType) => void,
+): Promise<[IdentityTypeWithKYC, IdentityTypeWithKYC] | null> => {
+    // get job details
+    const resJob = await getJob(jobId, user);
+    if( !resJob || !resJob.data.success) {
+      setInfo(makeInfoProps('error', resJob.data.message || 'error', false));
+      return;
+    }
+
+    const job = resJob.data.job;
+    setInfo(makeInfoProps('info', resJob.data.message, true));
+
+    // get shared keypairs
+    const keypairId = `job||${job.creator}||${jobId}`;
+    const resSharedKey = await getKeypair(keypairId, user);
+    if( !resSharedKey || !resSharedKey.data.success) {
+      setInfo(makeInfoProps('error', resSharedKey.data.message || 'error', false));
+      return;
+    }
+
+    setInfo(makeInfoProps('info', resSharedKey.data.message, true));
+
+    const crypt = new Crypt();
+
+    const rawSharedKeypair = crypt.decrypt(user.keypair.privateKey, JSON.stringify(resSharedKey.data.keypair));
+    const sharedKeypair = JSON.parse(rawSharedKeypair.message);
+    const decryptedJob = crypt.decrypt(sharedKeypair.privateKey, job.data);
+    const message = JSON.parse(decryptedJob.message);
+
+    // get originalData
+    const resOriginalData = await request({
+      username: user.username,
+      wallet: user.wallet,
+      url: appConfig.nerves.identity.url,
+      method: 'GET',
+      params: {
+        identityId: job.creator,
+      },
+    });
+
+    if( !resOriginalData || !resOriginalData.data.success) {
+      setInfo(makeInfoProps('error', resOriginalData.data.message || 'error', false));
+      return;
+    }
+
+    const decryptedOriginal = crypt.decrypt(sharedKeypair.privateKey, resOriginalData.data.identity.encryptedIdentity);
+    const decryptedOriginalIdentity = JSON.parse(decryptedOriginal.message);
+
+    setInfo(makeInfoProps('info', '', false));
+
+    return [
+        {
+            ...message,
+            confirmations: resOriginalData.data.identity.confirmations,
+            kyc: resOriginalData.data.identity.kyc,
+        },
+        {
+            ...decryptedOriginalIdentity,
+            confirmations: resOriginalData.data.identity.confirmations,
+            kyc: resOriginalData.data.identity.kyc,
+        },
+    ];
 };
