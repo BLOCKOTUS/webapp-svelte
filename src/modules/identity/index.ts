@@ -5,7 +5,7 @@ import appConfig from '@@Config/app';
 import { request } from '@@Modules/nerves';
 import { generateKeyPair, uniqueHashFromIdentity } from '@@Modules/crypto';
 import { makeInfoProps } from '@@Modules/info';
-import { getJob, decryptJob } from '@@Modules/job';
+import { getJob, decryptJob, getJobList } from '@@Modules/job';
 import { getEncryptedKeypair, decryptKeypair } from '@@Modules/user';
 import type { InfoType } from '@@Modules/info';
 import type { RequestReponseObject } from '@@Modules/nerves';
@@ -65,6 +65,43 @@ export const getIdentity = async (
       identityId: id,
     },
 });
+
+export const getMyIdentity = async (
+    user: User,
+    setInfo: (info: InfoType) => void,
+): Promise<IdentityTypeWithKYC> => {
+    // get encrypted identity
+    const resIdentity = await getIdentity(user);
+    if (!resIdentity || !resIdentity.data.success){
+        setInfo(makeInfoProps('error', resIdentity.data.message || 'error', false));
+    }
+    const encryptedIdentity = resIdentity.data.identity.encryptedIdentity;
+
+    // get job list containing the jobId used for identity verification
+    const resJobList = await getJobList(user, 'identity', user.id);
+    if (!resJobList || !resJobList.data.success){
+        setInfo(makeInfoProps('error', resJobList.data.message || 'error', false));
+    }
+    const jobId = resJobList.data.list[0].jobId;
+
+    // get the keypair used for encrypting the identity
+    const keypairId = `job||${user.id}||${jobId}`;
+    const resEncryptedKeypair = await getEncryptedKeypair(keypairId, user);
+    if (!resEncryptedKeypair || !resEncryptedKeypair.data.success){
+        setInfo(makeInfoProps('error', resEncryptedKeypair.data.message || 'error', false));
+    }
+    const sharedKeypair = decryptKeypair(user, resEncryptedKeypair.data.keypair);
+
+    // decrypt and return the identity
+    const decryptedIdentity = decryptIdentity(sharedKeypair, encryptedIdentity);
+    setInfo(makeInfoProps('info', '', false));
+    const identityWithKyc: IdentityTypeWithKYC = { 
+        ...decryptedIdentity,
+        kyc: resIdentity.data.identity.kyc,
+        confirmations: resIdentity.data.identity.confirmations,
+    };
+    return identityWithKyc;
+};
 
 export const createIdentity = async (
     citizen: IdentityType, 
