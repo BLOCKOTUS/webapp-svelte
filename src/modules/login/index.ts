@@ -47,20 +47,25 @@ export const login = (
 ): void => {
     e.preventDefault();
 
+    // set info loading
     setInfo(makeInfoProps('info', '', true));
 
+    // validate keypair
     validateKeypair(users.tmp.keypair)
         .catch(_e => {
             setInfo(makeInfoProps('error', 'Keypair is invalid', false));
             return;
         });
 
+    // verify if already logged in
     if (isAlreadyLogged(users)) {
         setInfo(makeInfoProps('error', `${users.tmp.username} already logged in.`, false));
         return;
     }
     
+    // perform login action
     loginUser(users);
+
     setInfo(makeInfoProps('info', 'Successfully registered.', false));
     return;
 };

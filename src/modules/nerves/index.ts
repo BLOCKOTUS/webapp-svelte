@@ -2,6 +2,11 @@ import axios, { AxiosPromise } from 'axios';
 
 import type { Wallet } from '@@Modules/user';
 
+export type RequestReponseObject = { 
+  success: boolean; 
+  message: string;
+};
+
 export const request = ({
   username = '',
   wallet,
@@ -16,8 +21,8 @@ export const request = ({
   url: string;
   data?: Record<string, unknown>;
   params?: Record<string, unknown>;
-}): AxiosPromise => {
-  const options = {
+}): AxiosPromise => 
+  axios({
     url,
     data,
     params: params,
@@ -25,12 +30,5 @@ export const request = ({
     headers: {
       'Authorization': `Basic ${btoa(`${username}:${JSON.stringify(wallet)}`)}`,
     },
-  };
+  });
 
-  return axios(options);
-};
-
-export type RequestReponseObject = { 
-  success: boolean; 
-  message: string;
-};

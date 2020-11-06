@@ -15,12 +15,12 @@ export type JobType = {
     creator: string;
     data: string;
     type: string;
-}
+};
 
 export type WorkerType = {
     _id: string;
     publicKey: string;
-}
+};
 
 type JobResponseObject = { 
     job: JobType;
@@ -28,15 +28,22 @@ type JobResponseObject = {
 
 type JobListResponseObject = { list: Array<{jobId: string}> };
 
+type PostJobResponseObject = {
+    workersIds: Array<WorkerType>;
+    jobId: string;
+};
+
 export type RequestJobResponseObject = RequestReponseObject & JobResponseObject;
+export type RequestPostJobResponseObject = RequestReponseObject & PostJobResponseObject;
 export type RequestJobListResponseObject = RequestReponseObject & JobListResponseObject;
 
 export type RequestJobResponse = AxiosResponse<RequestJobResponseObject>;
+export type RequestPostJobResponse = AxiosResponse<RequestPostJobResponseObject>;
 export type RequestJobListResponse = AxiosResponse<RequestJobListResponseObject>;
 
 export const getJob = (
-    jobId: string,
     user: User,
+    jobId: string,
 ): Promise<RequestJobResponse> =>
     request({
         username: user.username,
@@ -45,6 +52,23 @@ export const getJob = (
         method: 'GET',
         params: {
           jobId,
+        },
+    });
+
+export const postJob = (
+    user: User,
+    encryptedIdentity: Encrypted,
+): Promise<RequestPostJobResponse> => 
+    request({
+        username: user.username,
+        wallet: user.wallet,
+        url: appConfig.nerves.job.url,
+        method: 'POST',
+        data: {
+            type: 'confirmation',
+            data: encryptedIdentity,
+            chaincode: 'identity',
+            key: user.id,
         },
     });
 

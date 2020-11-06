@@ -7,14 +7,13 @@ import appConfig from '@@Config/app';
 import { request } from '@@Modules/nerves';
 import { generateKeyPair, uniqueHashFromIdentity } from '@@Modules/crypto';
 import { makeInfoProps } from '@@Modules/info';
-import { getJob, decryptJob, getJobList } from '@@Modules/job';
-import { getEncryptedKeypair, decryptKeypair } from '@@Modules/user';
+import { getJob, decryptJob, getJobList, postJob } from '@@Modules/job';
+import { getEncryptedKeypair, decryptKeypair, postEncryptedKeypair } from '@@Modules/user';
 import type { InfoType } from '@@Modules/info';
 import type { RequestReponseObject } from '@@Modules/nerves';
 import type { User } from '@@Modules/user';
-import type { SharedWithKeypair, UsersType } from '@@Modules/user';
-import type { WorkerType } from '@@Modules/job';
-import type { Keypair } from '@@Modules/crypto';
+import type { UsersType } from '@@Modules/user';
+import type { Keypair, Encrypted } from '@@Modules/crypto';
 
 const crypt = new Crypt();
 
@@ -52,7 +51,7 @@ export type RequestIdentityResponseObject = RequestReponseObject & {
 
 export type RequestIdentityResponse = AxiosResponse<RequestIdentityResponseObject>;
 
-export const verifyDocumentationUrl = (url: string): boolean => {
+export const validateDocumentationUrl = (url: string): boolean => {
     const regex = /^https?:\/\/imgur.com\/a\/([\w]{7})$/gm;
     return regex.test(url);
 };
@@ -60,15 +59,32 @@ export const verifyDocumentationUrl = (url: string): boolean => {
 export const getIdentity = async (
     user: User,
     id?: string,
-): Promise<RequestIdentityResponse> => await request({
-    username: user.username,
-    wallet: user.wallet,
-    url: appConfig.nerves.identity.url,
-    method: 'GET',
-    params: {
-      identityId: id,
-    },
-});
+): Promise<RequestIdentityResponse> => 
+    request({
+        username: user.username,
+        wallet: user.wallet,
+        url: appConfig.nerves.identity.url,
+        method: 'GET',
+        params: {
+            identityId: id,
+        },
+    });
+
+export const postIdentity = async (
+    user: User,
+    encryptedIdentity: Encrypted,
+    uniqueHash: string,
+): Promise<RequestIdentityResponse> => 
+    request({
+        username: user.username,
+        wallet: user.wallet,
+        url: appConfig.nerves.identity.url,
+        method: 'POST',
+        data: {
+            encryptedIdentity,
+            uniqueHash,
+        },
+    });
 
 export const getMyIdentity = async (
     user: User,
@@ -111,11 +127,11 @@ export const createIdentity = async (
     user: User,
     setInfo: (info: InfoType) => void,
 ): Promise<InfoType> => {
-
     let info = makeInfoProps('info', 'Submitting...', true);
     setInfo(info);
 
-    if (!verifyDocumentationUrl(citizen.documentation)) {
+    // validate documentation url
+    if (!validateDocumentationUrl(citizen.documentation)) {
         info = makeInfoProps('error', 'Documentation URL is incorrect. Format: https://imgur.com/a/5a15vOr', false);
         setInfo(info);
         return info;
@@ -128,98 +144,37 @@ export const createIdentity = async (
     const encryptedIdentity = crypt.encrypt(keypairToShare.publicKey, JSON.stringify(citizen));
     
     // post the identity to the nerves
-    const resIdentity = await request({
-        username: user.username,
-        wallet: user.wallet,
-        url: appConfig.nerves.identity.url,
-        method: 'POST',
-        data: {
-            encryptedIdentity,
-            uniqueHash: uniqueHashFromIdentity(citizen),
-        },
-    })
-    .catch(e => {
-        info = makeInfoProps('error', e.message, false);
-    });
-    
-    if (!resIdentity) return info;
-    if (!resIdentity.data.success) {
+    const resIdentity = await postIdentity(user, encryptedIdentity, uniqueHashFromIdentity(citizen));
+    if (!resIdentity || !resIdentity.data.success){
         info = makeInfoProps('error', resIdentity.data.message, false);
         setInfo(info);
         return info;
     }
-
     info = makeInfoProps('info', resIdentity.data.message, true);
     setInfo(info);
     
     // create verification jobs
-    const resJob = await request({
-        username: user.username,
-        wallet: user.wallet,
-        url: appConfig.nerves.job.url,
-        method: 'POST',
-        data: {
-            type: 'confirmation',
-            data: encryptedIdentity,
-            chaincode: 'identity',
-            key: user.id,
-        },
-    })
-    .catch(e => {
-        info = makeInfoProps('error', e.message, false);
-        setInfo(info);
-    });
-
-    if (!resJob) return info;
-    if (!resJob.data.success) {
+    const resJob = await postJob(user, encryptedIdentity);
+    if (!resJob || !resJob.data.success) {
         info = makeInfoProps('error', resJob.data.message, false);
         setInfo(info);
         return info;
     }
-
     info = makeInfoProps('info', resJob.data.message, true);
     setInfo(info);
-
     const { workersIds, jobId } = resJob.data;
 
     // share the keypair with the workers
     const myEncryptedKeyPair = JSON.stringify(crypt.encrypt(user.keypair.publicKey, JSON.stringify(keypairToShare)));
-    const sharedWith = workersIds.reduce(
-        (acc: SharedWithKeypair, worker: WorkerType) => {
-            return ({
-                ...acc,
-                [worker._id]: { keypair: JSON.stringify(crypt.encrypt(worker.publicKey, JSON.stringify(keypairToShare))) },
-            });
-        },
-        {},
-    );
-
-    const resKeypair = await request({
-        username: user.username,
-        wallet: user.wallet,
-        url: appConfig.nerves.user.keypair.url,
-        method: 'POST',
-        data: {
-            sharedWith,
-            groupId: jobId,
-            myEncryptedKeyPair,
-            type: 'job',
-        },
-    })
-    .catch(e => {
-        info = makeInfoProps('error', e.message, false);
-        setInfo(info);
-    });
-
-    if (!resKeypair) return info;
-    if (!resKeypair.data.success) {
+    const resKeypair = await postEncryptedKeypair(workersIds, keypairToShare, jobId, myEncryptedKeyPair, user);
+    if (!resKeypair || !resKeypair.data.success) {
         info = makeInfoProps('error', resKeypair.data.message, false);
         setInfo(info);
         return info;
     }
-
     info = makeInfoProps('info', 'Your identity have been successfully created. Wait for confirmations. You will be redirected.', false);
     setInfo(info);
+
     return info;
 };
 
@@ -229,7 +184,7 @@ export const getIdentityVerificationJob = async (
     setInfo: (info: InfoType) => void,
 ): Promise<[IdentityTypeWithKYC, IdentityTypeWithKYC] | null> => {
     // get job
-    const resJob = await getJob(jobId, user);
+    const resJob = await getJob(user, jobId);
     if( !resJob || !resJob.data.success) {
       setInfo(makeInfoProps('error', resJob.data.message || 'error', false));
       return null;
@@ -297,7 +252,6 @@ export const submitCreateIdentity = async (
 ): Promise<void> => {
     e.preventDefault();
     const info = await createIdentity(citizen, user, setInfo);
-
     if (info.type === 'info') {
         let loggedInUser = users.users.filter(u => u.username === users.loggedInUser)[0];
         const loggedIndex = users.users.indexOf(loggedInUser);

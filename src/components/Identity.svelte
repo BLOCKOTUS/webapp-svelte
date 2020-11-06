@@ -1,6 +1,6 @@
 <script lang="typescript">
 	import type { IdentityTypeWithKYC } from '@@Modules/identity';
-	import { verifyDocumentationUrl } from '@@Modules/identity';
+	import { validateDocumentationUrl } from '@@Modules/identity';
 
 	export let identity: IdentityTypeWithKYC;
 </script>
@@ -15,7 +15,7 @@
 	<tr>
 		<td>Documentation</td>
 		<td>
-			{#if verifyDocumentationUrl(identity.documentation)}
+			{#if validateDocumentationUrl(identity.documentation)}
 				<a href={identity.documentation} target="_blank">{identity.documentation}</a>
 			{/if}
 		</td>

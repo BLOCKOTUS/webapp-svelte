@@ -6,11 +6,14 @@ import { request } from '@@Modules/nerves';
 import type { RequestReponseObject } from '@@Modules/nerves';
 import type { Encrypted, Keypair } from '@@Modules/crypto';
 import type { IdentityType } from '@@Modules/identity';
+import type { WorkerType } from '@@Modules/job';
+
+const crypt = new Crypt();
 
 export type Account = {
     id: string;
     username: string;
-}
+};
 
 export type Wallet = {
     credentials: {
@@ -19,7 +22,7 @@ export type Wallet = {
     }
     mspId: string;
     type: string;
-}
+};
 
 export type User = Account & {
     id: string;
@@ -27,23 +30,39 @@ export type User = Account & {
     keypair: Keypair;
     username: string;
     identity?: IdentityType;
-}
+};
 
 export type UsersType = {
-    loggedInUser: string,
-    users: Array<User>,
-    tmp: User,
-  };
+    loggedInUser: string;
+    users: Array<User>;
+    tmp: User;
+};
 
 type UserKeypairResponseObject = { 
     keypair: Encrypted;
 };
 
-export type SharedWithKeypair = Record<string, string>;
+export type SharedWithKeypair = Record<string, { keypair: Encrypted }>;
 
 export type RequestUserKeypairResponseObject = RequestReponseObject & UserKeypairResponseObject;
+export type RequestPostKeypairResponseObject = RequestReponseObject;
 
 export type RequestUserKeypairResponse = AxiosResponse<RequestUserKeypairResponseObject>;
+export type RequestPostKeypairResponse = AxiosResponse<RequestPostKeypairResponseObject>;
+
+const makeSharedWithObjectForWorkers = (
+    workersIds: Array<WorkerType>,
+    keypairToShare: Keypair,
+): SharedWithKeypair => 
+    workersIds.reduce(
+        (acc: SharedWithKeypair, worker: WorkerType) => {
+            return ({
+                ...acc,
+                [worker._id]: { keypair: JSON.stringify(crypt.encrypt(worker.publicKey, JSON.stringify(keypairToShare))) },
+            });
+        },
+        {},
+    );
 
 export const getUser = (users: UsersType): User => {
     const user: User = { 
@@ -66,10 +85,11 @@ export const getUser = (users: UsersType): User => {
     return user;
 };
 
-export const getEncryptedKeypair = async (
+export const getEncryptedKeypair = (
     keypairId: string,
     user: User,
-): Promise<RequestUserKeypairResponse> => await request({
+): Promise<RequestUserKeypairResponse> => 
+    request({
         username: user.username,
         wallet: user.wallet,
         url: appConfig.nerves.user.keypair.url,
@@ -79,11 +99,30 @@ export const getEncryptedKeypair = async (
         },          
     });
 
+export const postEncryptedKeypair = (
+    workersIds: Array<WorkerType>,
+    keypairToShare: Keypair,
+    jobId: string,
+    myEncryptedKeyPair: Encrypted,
+    user: User,
+): Promise<RequestPostKeypairResponse> => 
+    request({
+        username: user.username,
+        wallet: user.wallet,
+        url: appConfig.nerves.user.keypair.url,
+        method: 'POST',
+        data: {
+            sharedWith: makeSharedWithObjectForWorkers(workersIds, keypairToShare),
+            groupId: jobId,
+            myEncryptedKeyPair,
+            type: 'job',
+        },
+    });
+
 export const decryptKeypair = (
     user: User,
     encryptedKeypair: Encrypted,
 ): Keypair => {
-    const crypt = new Crypt();
     const rawSharedKeypair = crypt.decrypt(user.keypair.privateKey, encryptedKeypair);
     return JSON.parse(rawSharedKeypair.message);
 };
