@@ -7,14 +7,14 @@
   import Identity from '@@Components/Identity.svelte';
   import { users } from "@@Stores/users";
   import { onClickApproveRefuse } from '@@Modules/job';
-	import { getUser } from '@@Modules/user';
+	import { getLoggedInUser } from '@@Modules/user';
 	import { getIdentityVerificationJob, canApproveIdentityVerificationJob } from '@@Modules/identity';
 
   import type { InfoType } from '@@Modules/info';
 
   export let params: { jobId: string };
 
-	const user = getUser($users);
+	const user = getLoggedInUser($users);
 
   let info: InfoType;
 

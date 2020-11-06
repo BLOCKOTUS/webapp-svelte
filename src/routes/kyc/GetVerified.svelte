@@ -8,12 +8,12 @@
 	import { citizen } from "@@Stores/citizen";
 	import { users } from "@@Stores/users";
 	import { submitCreateIdentity, submitRegisterIsDisabled } from '@@Modules/identity';
-	import { getUser } from '@@Modules/user';
+	import { getLoggedInUser } from '@@Modules/user';
 	import type { InfoType } from '@@Modules/info';
 
 	const maskString = 'YYYY-MM-DD';
 	const mask = '0000-00-00';
-	const user = getUser($users);
+	const user = getLoggedInUser($users);
 
 	let info: InfoType;
 	$: info = { value: '', type: '', loading: false };

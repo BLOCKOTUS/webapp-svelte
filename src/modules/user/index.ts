@@ -64,7 +64,7 @@ const makeSharedWithObjectForWorkers = (
         {},
     );
 
-export const getUser = (users: UsersType): User => 
+export const getLoggedInUser = (users: UsersType): User => 
     users.users.filter(u => u.username === users.loggedInUser)[0];
 
 export const getEncryptedKeypair = (

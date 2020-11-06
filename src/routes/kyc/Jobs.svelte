@@ -6,7 +6,7 @@
 	import Info from '@@Components/Info.svelte';
 	import Header from '@@Components/Header.svelte';
 	import { users } from "@@Stores/users";
-	import { getUser } from '@@Modules/user';
+	import { getLoggedInUser } from '@@Modules/user';
 	import { getJobList } from '@@Modules/job';
 	import { makeInfoProps } from '@@Modules/info';
     import type { InfoType } from '@@Modules/info';
@@ -15,7 +15,7 @@
 	let info: InfoType;
     $: info = { value: 'Loading job list...', type: 'info', loading: true };
 	const setInfo = (i: InfoType) => info = i;
-	const user = getUser($users);
+	const user = getLoggedInUser($users);
 
 	const onClickVerify = (i: number) => push(`/kyc/verify/${i}`);
 

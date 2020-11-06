@@ -5,13 +5,13 @@
 	import Info from '@@Components/Info.svelte';
 	import { users } from "@@Stores/users";
 	import { getMyIdentity } from '@@Modules/identity';
-	import { getUser } from '@@Modules/user';
+	import { getLoggedInUser } from '@@Modules/user';
 	import type { InfoType } from '@@Modules/info';
 
 	let info: InfoType;
     $: info = { value: 'Loading your identity...', type: 'info', loading: true };
 	const setInfo = (i: InfoType) => info = i;
-	const user = getUser($users);
+	const user = getLoggedInUser($users);
 	
 	const getMyIdentityPromise = getMyIdentity(user, setInfo);
 </script>
