@@ -46,7 +46,19 @@ export type RequestUserKeypairResponseObject = RequestReponseObject & UserKeypai
 export type RequestUserKeypairResponse = AxiosResponse<RequestUserKeypairResponseObject>;
 
 export const getUser = (users: UsersType): User => {
-    const user: User = { id: '', username: '', wallet: '', keypair: { privateKey: '', publicKey: '' } };
+    const user: User = { 
+        id: '',
+        username: '',
+        wallet: {
+            credentials: {
+                certificate: '',
+                privateKey: '',
+            },
+            mspId: '',
+            type: '',
+        },
+        keypair: { privateKey: '', publicKey: '' },
+    };
     user.username = users.loggedInUser;
     user.wallet = users.users.filter(u => u.username === user.username)[0].wallet;
     user.keypair = users.users.filter(u => u.username === user.username)[0].keypair;

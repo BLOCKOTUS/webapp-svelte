@@ -14,7 +14,7 @@ import type { RequestReponseObject } from '@@Modules/nerves';
 import type { User } from '@@Modules/user';
 import type { SharedWithKeypair, UsersType } from '@@Modules/user';
 import type { WorkerType } from '@@Modules/job';
-import type { Encrypted, Keypair } from '@@Modules/crypto';
+import type { Keypair } from '@@Modules/crypto';
 
 const crypt = new Crypt();
 
