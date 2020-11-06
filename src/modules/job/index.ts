@@ -54,7 +54,7 @@ export const onClickApproveRefuse = async (
     user: User,
     setInfo: (info: InfoType) => void,
 ): Promise<void> => {
-    setInfo(makeInfoProps('info', 'Submiting result...', true));
+    setInfo(makeInfoProps('info', 'Submitting result...', true));
 
     const resComplete: RequestJobResponse | void = await request({
         username: user.username,

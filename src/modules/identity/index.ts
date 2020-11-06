@@ -29,6 +29,7 @@ export type IdentityType = {
     nationalId: string;
     birthdate: string;
     documentation: string;
+    uniqueHash: string;
 }
 
 export type WithKYC = {
@@ -42,6 +43,7 @@ type EncryptedIndentity = string;
 
 export type IdentityResponseObject = WithKYC & { 
     encryptedIdentity: EncryptedIndentity;
+    uniqueHash: string;
 };
 
 export type RequestIdentityResponseObject = RequestReponseObject & { 
@@ -77,7 +79,6 @@ export const getMyIdentity = async (
     if (!resIdentity || !resIdentity.data.success){
         setInfo(makeInfoProps('error', resIdentity.data.message || 'error', false));
     }
-    const encryptedIdentity = resIdentity.data.identity.encryptedIdentity;
 
     // get job list containing the jobId used for identity verification
     const resJobList = await getJobList({user, chaincode: 'identity', key: user.id});
@@ -95,7 +96,7 @@ export const getMyIdentity = async (
     const sharedKeypair = decryptKeypair(user, resEncryptedKeypair.data.keypair);
 
     // decrypt and return the identity
-    const decryptedIdentity = decryptIdentity(sharedKeypair, encryptedIdentity);
+    const decryptedIdentity = decryptIdentity(sharedKeypair, resIdentity.data.identity);
     setInfo(makeInfoProps('info', '', false));
     const identityWithKyc: IdentityTypeWithKYC = { 
         ...decryptedIdentity,
@@ -254,11 +255,12 @@ export const getIdentityVerificationJob = async (
       return null;
     }
     setInfo(makeInfoProps('info', '', false));
-    const creatorIdentity = decryptIdentity(sharedKeypair, resCreatorIdentity.data.identity.encryptedIdentity);
+    const creatorIdentity = decryptIdentity(sharedKeypair, resCreatorIdentity.data.identity);
 
     return [
         {
             ...decryptedJob,
+            uniqueHash: uniqueHashFromIdentity(decryptedJob),
             confirmations: resCreatorIdentity.data.identity.confirmations,
             kyc: resCreatorIdentity.data.identity.kyc,
         },
@@ -272,18 +274,18 @@ export const getIdentityVerificationJob = async (
 
 export const decryptIdentity = (
     keypair: Keypair,
-    encryptedIdentity: Encrypted,
+    identityResponseObject: IdentityResponseObject,
 ): IdentityType => {
     const crypt = new Crypt();
-    const rawIdentity = crypt.decrypt(keypair.privateKey, encryptedIdentity);
-    return JSON.parse(rawIdentity.message);
+    const rawIdentity = crypt.decrypt(keypair.privateKey, identityResponseObject.encryptedIdentity);
+    return { ...JSON.parse(rawIdentity.message), uniqueHash: identityResponseObject.uniqueHash };
 };
 
 export const canApproveIdentityVerificationJob = (
     verificationJob: [IdentityTypeWithKYC, IdentityTypeWithKYC] | null,
 ): boolean => 
     verificationJob
-    && uniqueHashFromIdentity(verificationJob[0]) === uniqueHashFromIdentity(verificationJob[1])
+    && verificationJob[0].uniqueHash === verificationJob[1].uniqueHash
     && isEqual(verificationJob[0], verificationJob[1]);
 
 export const submitCreateIdentity = async (
