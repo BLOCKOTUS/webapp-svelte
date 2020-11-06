@@ -15,8 +15,6 @@ import type { User } from '@@Modules/user';
 import type { UsersType } from '@@Modules/user';
 import type { Keypair, Encrypted } from '@@Modules/crypto';
 
-const crypt = new Crypt();
-
 export type Confirmations = [ number, number ];
 
 export type KYC = boolean;
@@ -50,6 +48,8 @@ export type RequestIdentityResponseObject = RequestReponseObject & {
 };
 
 export type RequestIdentityResponse = AxiosResponse<RequestIdentityResponseObject>;
+
+const crypt = new Crypt();
 
 export const validateDocumentationUrl = (url: string): boolean => {
     const regex = /^https?:\/\/imgur.com\/a\/([\w]{7})$/gm;

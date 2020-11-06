@@ -8,8 +8,6 @@ import type { Encrypted, Keypair } from '@@Modules/crypto';
 import type { IdentityType } from '@@Modules/identity';
 import type { WorkerType } from '@@Modules/job';
 
-const crypt = new Crypt();
-
 export type Account = {
     id: string;
     username: string;
@@ -50,6 +48,8 @@ export type RequestPostKeypairResponseObject = RequestReponseObject;
 export type RequestUserKeypairResponse = AxiosResponse<RequestUserKeypairResponseObject>;
 export type RequestPostKeypairResponse = AxiosResponse<RequestPostKeypairResponseObject>;
 
+const crypt = new Crypt();
+
 const makeSharedWithObjectForWorkers = (
     workersIds: Array<WorkerType>,
     keypairToShare: Keypair,
@@ -64,26 +64,14 @@ const makeSharedWithObjectForWorkers = (
         {},
     );
 
-export const getUser = (users: UsersType): User => {
-    const user: User = { 
-        id: '',
-        username: '',
-        wallet: {
-            credentials: {
-                certificate: '',
-                privateKey: '',
-            },
-            mspId: '',
-            type: '',
-        },
-        keypair: { privateKey: '', publicKey: '' },
-    };
-    user.username = users.loggedInUser;
-    user.wallet = users.users.filter(u => u.username === user.username)[0].wallet;
-    user.keypair = users.users.filter(u => u.username === user.username)[0].keypair;
-    user.id = users.users.filter(u => u.username === user.username)[0].id;
-    return user;
-};
+export const getUser = (users: UsersType): User => 
+    ({ 
+        id: users.users.filter(u => u.username === users.loggedInUser)[0].id,
+        username: users.loggedInUser,
+        wallet: users.users.filter(u => u.username === users.loggedInUser)[0].wallet,
+        keypair: users.users.filter(u => u.username === users.loggedInUser)[0].keypair,
+        identity: users.users.filter(u => u.username === users.loggedInUser)[0].identity,
+    });
 
 export const getEncryptedKeypair = (
     keypairId: string,
