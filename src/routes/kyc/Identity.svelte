@@ -13,7 +13,7 @@
 	const setInfo = (i: InfoType) => info = i;
 	const user = getLoggedInUser($users);
 	
-	const getMyIdentityPromise = getMyIdentity(user, setInfo);
+	const getMyIdentityPromise = getMyIdentity({ user, setInfo });
 </script>
 
 <Header title="Identity" />

@@ -42,8 +42,13 @@ export type RequestPostJobResponse = AxiosResponse<RequestPostJobResponseObject>
 export type RequestJobListResponse = AxiosResponse<RequestJobListResponseObject>;
 
 export const getJob = (
-    user: User,
-    jobId: string,
+    {
+        user,
+        jobId,
+    }: {
+        user: User,
+        jobId: string,
+    },
 ): Promise<RequestJobResponse> =>
     request({
         username: user.username,
@@ -56,8 +61,13 @@ export const getJob = (
     });
 
 export const postJob = (
-    user: User,
-    encryptedIdentity: Encrypted,
+    {
+        user,
+        encryptedIdentity,
+    }: {
+        user: User,
+        encryptedIdentity: Encrypted,
+    },
 ): Promise<RequestPostJobResponse> => 
     request({
         username: user.username,
@@ -73,12 +83,19 @@ export const postJob = (
     });
 
 export const onClickApproveRefuse = async (
-    jobId: string,
-    result: 0 | 1,
-    user: User,
-    setInfo: (info: InfoType) => void,
+    {
+        jobId,
+        result,
+        user,
+        setInfo,
+    }: {
+        jobId: string,
+        result: 0 | 1,
+        user: User,
+        setInfo: (info: InfoType) => void,
+    },
 ): Promise<void> => {
-    setInfo(makeInfoProps('info', 'Submitting result...', true));
+    setInfo(makeInfoProps({ type: 'info', value: 'Submitting result...', loading: true }));
 
     const resComplete: RequestJobResponse | void = await request({
         username: user.username,
@@ -90,23 +107,28 @@ export const onClickApproveRefuse = async (
             result,
         },
     }).catch(e => {
-        setInfo(makeInfoProps('error', e.message || 'error', false));
+        setInfo(makeInfoProps({ type: 'error', value: e.message || 'error', loading: false }));
     });
 
     if(!resComplete) return;
 
     if(!resComplete.data.success){
-        setInfo(makeInfoProps('error', resComplete.data.message || 'error', false));
+        setInfo(makeInfoProps({ type: 'error', value: resComplete.data.message || 'error', loading: false }));
         return;
     }
 
-    setInfo(makeInfoProps('info', 'Job complete. You will be redirected to the job list.', true));
+    setInfo(makeInfoProps({ type: 'info', value: 'Job complete. You will be redirected to the job list.', loading: true }));
     setTimeout(() => push('/kyc/jobs'), 1500);
 };
 
 export const decryptJob = (
-    keypair: Keypair,
-    encryptedJob: Encrypted,
+    {
+        keypair,
+        encryptedJob,
+    }: {
+        keypair: Keypair,
+        encryptedJob: Encrypted,
+    },
 ): any => {
     const crypt = new Crypt();
     const rawEncryptedJob = crypt.decrypt(keypair.privateKey, encryptedJob);
@@ -124,7 +146,7 @@ export const getJobList = (
         chaincode?: string,
         key?: string,
         status?: string,
-    }): Promise<RequestJobListResponse> => 
+}): Promise<RequestJobListResponse> => 
     request({
         username: user.username,
         wallet: user.wallet,

@@ -51,8 +51,13 @@ export type RequestPostKeypairResponse = AxiosResponse<RequestPostKeypairRespons
 const crypt = new Crypt();
 
 const makeSharedWithObjectForWorkers = (
-    workersIds: Array<WorkerType>,
-    keypairToShare: Keypair,
+    {
+        workersIds,
+        keypairToShare,
+    }: {
+        workersIds: Array<WorkerType>,
+        keypairToShare: Keypair,
+    },
 ): SharedWithKeypair => 
     workersIds.reduce(
         (acc: SharedWithKeypair, worker: WorkerType) => {
@@ -68,8 +73,13 @@ export const getLoggedInUser = (users: UsersType): User =>
     users.users.filter(u => u.username === users.loggedInUser)[0];
 
 export const getEncryptedKeypair = (
-    keypairId: string,
-    user: User,
+    {
+        keypairId,
+        user,
+    }: {
+        keypairId: string,
+        user: User,
+    },
 ): Promise<RequestUserKeypairResponse> => 
     request({
         username: user.username,
@@ -82,11 +92,19 @@ export const getEncryptedKeypair = (
     });
 
 export const postEncryptedKeypair = (
-    workersIds: Array<WorkerType>,
-    keypairToShare: Keypair,
-    jobId: string,
-    myEncryptedKeyPair: Encrypted,
-    user: User,
+    {
+        workersIds,
+        keypairToShare,
+        jobId,
+        myEncryptedKeyPair,
+        user,
+    }: {
+        workersIds: Array<WorkerType>,
+        keypairToShare: Keypair,
+        jobId: string,
+        myEncryptedKeyPair: Encrypted,
+        user: User,
+    },
 ): Promise<RequestPostKeypairResponse> => 
     request({
         username: user.username,
@@ -94,7 +112,7 @@ export const postEncryptedKeypair = (
         url: appConfig.nerves.user.keypair.url,
         method: 'POST',
         data: {
-            sharedWith: makeSharedWithObjectForWorkers(workersIds, keypairToShare),
+            sharedWith: makeSharedWithObjectForWorkers({ workersIds, keypairToShare }),
             groupId: jobId,
             myEncryptedKeyPair,
             type: 'job',
@@ -102,8 +120,13 @@ export const postEncryptedKeypair = (
     });
 
 export const decryptKeypair = (
-    user: User,
-    encryptedKeypair: Encrypted,
+    {
+        user,
+        encryptedKeypair,
+    }: {
+        user: User,
+        encryptedKeypair: Encrypted,
+    },
 ): Keypair => {
     const rawSharedKeypair = crypt.decrypt(user.keypair.privateKey, encryptedKeypair);
     return JSON.parse(rawSharedKeypair.message);

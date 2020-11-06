@@ -5,7 +5,13 @@ export type InfoType = {
 };
 
 export const makeInfoProps = (
-    type: 'error' | 'info' | '',
-    value: string, 
-    loading: boolean,
+    {
+        type,
+        value,
+        loading,
+    }: {
+        type: 'error' | 'info' | '',
+        value: string, 
+        loading: boolean,
+    },
 ): InfoType => ({ value, type, loading });

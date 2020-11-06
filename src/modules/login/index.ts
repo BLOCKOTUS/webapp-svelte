@@ -41,32 +41,38 @@ export const loginUser = (
 };
 
 export const login = (
-    e: Event,
-    users: UsersType,
-    setInfo: (info: InfoType) => void,
+    {
+        e,
+        users,
+        setInfo,
+    }: {
+        e: Event,
+        users: UsersType,
+        setInfo: (info: InfoType) => void,
+    },
 ): void => {
     e.preventDefault();
 
     // set info loading
-    setInfo(makeInfoProps('info', '', true));
+    setInfo(makeInfoProps({ type: 'info', value: '', loading: true }));
 
     // validate keypair
     validateKeypair(users.tmp.keypair)
         .catch(_e => {
-            setInfo(makeInfoProps('error', 'Keypair is invalid', false));
+            setInfo(makeInfoProps({ type: 'error', value: 'Keypair is invalid', loading: false }));
             return;
         });
 
     // verify if already logged in
     if (isAlreadyLogged(users)) {
-        setInfo(makeInfoProps('error', `${users.tmp.username} already logged in.`, false));
+        setInfo(makeInfoProps({ type: 'error', value: `${users.tmp.username} already logged in.`, loading: false }));
         return;
     }
     
     // perform login action
     loginUser(users);
 
-    setInfo(makeInfoProps('info', 'Successfully registered.', false));
+    setInfo(makeInfoProps({ type: 'info', value: 'Successfully registered.', loading: false}));
     return;
 };
 
@@ -79,8 +85,13 @@ export const submitLoginIsDisabled = (
     || users.tmp.wallet === null;
 
 export const register = (
-    username: string,
-    keypair: Keypair,
+    {
+        username,
+        keypair,
+    }: {
+        username: string,
+        keypair: Keypair,
+    },
 ): Promise<RequestRegisterResponse> =>
     request({
         method: 'POST',
@@ -92,24 +103,30 @@ export const register = (
     });
 
 export const submitRegister = async (
-    e: Event,
-    users: UsersType,
-    setInfo: (info: InfoType) => void,
+    {
+        e,
+        users,
+        setInfo,
+    }: {
+        e: Event,
+        users: UsersType,
+        setInfo: (info: InfoType) => void,
+    },
 ): Promise<void> => {
     e.preventDefault();
-    setInfo(makeInfoProps('info', '', true));
+    setInfo(makeInfoProps({ type: 'info', value: '', loading: true }));
 
     // generate keypair
     const keypair = await generateKeyPair();
 
     // get wallet from the network
-    const resRegister = await register(users.tmp.username, keypair);
+    const resRegister = await register({ username: users.tmp.username, keypair});
     if (!resRegister || !resRegister.data.success) {
-        setInfo(makeInfoProps('error', resRegister.data.message || 'error', false));
+        setInfo(makeInfoProps({ type: 'error', value: resRegister.data.message || 'error', loading: false }));
         return;
     }
     const { wallet, id } = resRegister.data;
-    setInfo(makeInfoProps('info', resRegister.data.message, false));
+    setInfo(makeInfoProps({ type: 'info', value: resRegister.data.message, loading: false }));
 
     // login user
     const user = {

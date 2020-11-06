@@ -31,7 +31,7 @@
         <textarea type="text" bind:value={$users.tmp.keypair.publicKey} name="publicKey" placeholder="Copy-paste your publicKey here."/>
         <textarea type="text" bind:value={$users.tmp.keypair.privateKey} name="privateKey" placeholder="Copy-paste your privateKey here."/>
     </div>
-	<Submit onclick={e => login(e, $users, setInfo)} disabled={loginButtonIsDisabled} />
+	<Submit onclick={e => login({ e, users: $users, setInfo })} disabled={loginButtonIsDisabled} />
 </form>
     
 <GoBack />

@@ -22,14 +22,14 @@
 	const loadJobList = async () => {
 		const resJobList = await getJobList({user, status: 'pending'});
 		if (!resJobList || !resJobList.data.success) {
-			setInfo(makeInfoProps('error', resJobList.data.message || 'error', false));
+			setInfo(makeInfoProps({ type: 'error', value: resJobList.data.message || 'error', loading: false }));
 			return;
 		}
 
 		list = resJobList.data.list;
 		localStorage.setItem('job.list.pending', JSON.stringify(list));
-		if (list.length === 0) setInfo(makeInfoProps('info', 'You have no job assigned.', false));
-		else setInfo(makeInfoProps('info', '', false));
+		if (list.length === 0) setInfo(makeInfoProps({ type: 'info', value: 'You have no job assigned.', loading: false }));
+		else setInfo(makeInfoProps({ type: 'info', value: '', loading: false }));
 	};
 
 	loadJobList();

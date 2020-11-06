@@ -18,7 +18,7 @@
 <Info info={info} />
 <form class="content">
 	<input type="text" bind:value={$users.tmp.username} placeholder="Username" />
-	<Submit onclick={e => submitRegister(e, $users, setInfo)} disabled={$users.tmp.username.length == 0} />
+	<Submit onclick={e => submitRegister({ e, users: $users, setInfo })} disabled={$users.tmp.username.length == 0} />
 </form>
     
 <GoBack />

@@ -27,7 +27,7 @@
     const jobList = JSON.parse(rawJobList);
     const jobId = jobList[params.jobId].jobId;
 
-    const identityVerificationJob = getIdentityVerificationJob(jobId, user, setInfo);
+    const identityVerificationJob = getIdentityVerificationJob({ jobId, user, setInfo });
 </script>
 
 <Header title="Verify" />
@@ -55,8 +55,8 @@
         </table>
     </div>
     <div class="refuse_approve_button">
-        <Approve label="Approve" onclick={() => onClickApproveRefuse(jobId, 1, user, setInfo)} disabled={!canApproveIdentityVerificationJob(identityVerificationJobResult)}></Approve>
-        <Refuse label="Refuse" onclick={() => onClickApproveRefuse(jobId, 0,  user, setInfo)}></Refuse>
+        <Approve label="Approve" onclick={() => onClickApproveRefuse({ jobId, result: 1, user, setInfo })} disabled={!canApproveIdentityVerificationJob(identityVerificationJobResult)}></Approve>
+        <Refuse label="Refuse" onclick={() => onClickApproveRefuse({ jobId, result: 0,  user, setInfo })}></Refuse>
     </div>
 {/await}
 

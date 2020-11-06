@@ -34,7 +34,7 @@
 	<input type="text" bind:value={$citizen.documentation} placeholder="Documentation" />
 	Copy-paste the url of your imgur gallery in the documentation field. 
 	<br /> <a href="https://imgur.com/a/5a15vOr" target="_blank">https://imgur.com/a/5a15vOr</a>
-	<Submit onclick={e => submitCreateIdentity(e, user, $users, $citizen, setInfo)} disabled={submitIsDisabled} />
+	<Submit onclick={e => submitCreateIdentity({ e, user, users: $users, citizen: $citizen, setInfo })} disabled={submitIsDisabled} />
 </form>
 
 <GoBack />
