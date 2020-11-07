@@ -35,10 +35,12 @@ type PostJobResponseObject = {
 
 export type RequestJobResponseObject = RequestReponseObject & JobResponseObject;
 export type RequestPostJobResponseObject = RequestReponseObject & PostJobResponseObject;
+export type RequestCompleteJobResponseObject = RequestReponseObject;
 export type RequestJobListResponseObject = RequestReponseObject & JobListResponseObject;
 
 export type RequestJobResponse = AxiosResponse<RequestJobResponseObject>;
 export type RequestPostJobResponse = AxiosResponse<RequestPostJobResponseObject>;
+export type RequestCompleteJobResponse = AxiosResponse<RequestCompleteJobResponseObject>;
 export type RequestJobListResponse = AxiosResponse<RequestJobListResponseObject>;
 
 export const getJob = (
@@ -92,7 +94,7 @@ export const completeJob = (
         jobId: string,
         result: 0| 1 ,
     },
-): Promise<RequestPostJobResponse> => 
+): Promise<RequestCompleteJobResponse> => 
     request({
         username: user.username,
         wallet: user.wallet,
