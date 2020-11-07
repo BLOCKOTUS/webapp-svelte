@@ -343,6 +343,7 @@ export const canApproveIdentityVerificationJob = (
 
 /**
  * Used for the onClick event of the `submit` button for submitting a new identity.
+ * It creates an identity, and store it in the `users` object/store.
  */
 export const submitCreateIdentity = async (
     {
@@ -352,6 +353,7 @@ export const submitCreateIdentity = async (
         citizen,
         onInfo,
         onComplete,
+        setUsers,
     }: {
         e: Event,
         user: User,
@@ -359,6 +361,7 @@ export const submitCreateIdentity = async (
         citizen: IdentityType,
         onInfo?: (info: InfoType) => void,
         onComplete?: () => void,
+        setUsers?: (u: UsersType) => void,
     },
 ): Promise<void> => {
     e.preventDefault();
@@ -369,6 +372,7 @@ export const submitCreateIdentity = async (
         loggedInUser = { ...loggedInUser, identity: {...citizen} };
         users.users[loggedIndex] = loggedInUser;
 
+        if (setUsers) setUsers(users);
         if (onComplete) onComplete();
     }
 };

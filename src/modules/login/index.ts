@@ -9,15 +9,27 @@ import type { InfoType } from '@@Modules/info';
 import type { Keypair } from '@@Modules/crypto';
 import type { RequestReponseObject } from '@@Modules/nerves';
 
+/**
+ * Data returned by the network when registering a new user.
+ */
 export type RegisterResponseObject = { 
     wallet: Wallet;
     id: string;
 };
 
+/**
+ * Object returned by the network when registering a new user.
+ */
 export type RequestRegisterResponseObject = RequestReponseObject & RegisterResponseObject;
 
+/**
+ * Object returned by Axios when registering a new user.
+ */
 export type RequestRegisterResponse = AxiosResponse<RequestRegisterResponseObject>;
 
+/**
+ * Check if the username stored in `tmp` object (Register page) is already logged in.
+ */
 export const isAlreadyLogged = (
     users: UsersType,
 ): boolean => 
@@ -26,6 +38,9 @@ export const isAlreadyLogged = (
         .filter((u: User) => u.username === users.tmp.username)
         .length > 0;
 
+/**
+ * Store user informations in `users` object.
+ */
 export const loginUser = (
     {
         users,
@@ -46,6 +61,10 @@ export const loginUser = (
     if (setUsers) setUsers(users);
 };
 
+/**
+ * Used for the onClick event of the `login` button on Login page.
+ * It validates the inputted keypair and perform the login action.
+ */
 export const login = (
     {
         e,
@@ -86,6 +105,9 @@ export const login = (
     return;
 };
 
+/**
+ * Check if the `Login` button should be disabled or not.
+ */
 export const submitLoginIsDisabled = (
     users: UsersType,
 ): boolean => 
@@ -94,6 +116,9 @@ export const submitLoginIsDisabled = (
     || users.tmp.keypair.publicKey.length === 0
     || users.tmp.wallet === null;
 
+/**
+ * Submit a new user to the network.
+ */
 export const register = (
     {
         username,
@@ -112,6 +137,10 @@ export const register = (
         },
     });
 
+/**
+ * Used for the onClick event of the `submit` button on Register page.
+ * It generates a keypair, register a user in the network, receives a wallet, and login the user.
+ */
 export const submitRegister = async (
     {
         e,
