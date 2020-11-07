@@ -9,6 +9,9 @@ import type { InfoType } from '@@Modules/info';
 import type { User } from '@@Modules/user';
 import type { Encrypted, Keypair } from '@@Modules/crypto';
 
+/**
+ * Job object, as stored on the ledger.
+ */
 export type JobType = {
     chaincode: string;
     key: string;
@@ -17,32 +20,53 @@ export type JobType = {
     type: string;
 };
 
+/**
+ * User selected for executing a task/job.
+ */
 export type WorkerType = {
     _id: string;
     publicKey: string;
 };
 
+/**
+ * Data returned by the network when requesting a job.
+ */
 type JobResponseObject = { 
     job: JobType;
 };
 
+/**
+ * Data returned by the network when requesting a job list.
+ */
 type JobListResponseObject = { list: Array<{jobId: string}> };
 
+/**
+ * Data returned by the network when posting a new job.
+ */
 type PostJobResponseObject = {
     workersIds: Array<WorkerType>;
     jobId: string;
 };
 
+/**
+ * Object returned by the network when doing a request.
+ */
 export type RequestJobResponseObject = RequestReponseObject & JobResponseObject;
 export type RequestPostJobResponseObject = RequestReponseObject & PostJobResponseObject;
 export type RequestCompleteJobResponseObject = RequestReponseObject;
 export type RequestJobListResponseObject = RequestReponseObject & JobListResponseObject;
 
+/**
+ * Object returned by Axios when doing a request.
+ */
 export type RequestJobResponse = AxiosResponse<RequestJobResponseObject>;
 export type RequestPostJobResponse = AxiosResponse<RequestPostJobResponseObject>;
 export type RequestCompleteJobResponse = AxiosResponse<RequestCompleteJobResponseObject>;
 export type RequestJobListResponse = AxiosResponse<RequestJobListResponseObject>;
 
+/**
+ * Request a job by jobId from the network.
+ */
 export const getJob = (
     {
         user,
@@ -62,6 +86,9 @@ export const getJob = (
         },
     });
 
+/**
+ * Submit a new job to the network.
+ */
 export const postJob = (
     {
         user,
@@ -84,6 +111,9 @@ export const postJob = (
         },
     });
 
+/**
+ * Complete a job by submitting a result for the job.
+ */
 export const completeJob = (
     {
         user,
@@ -106,6 +136,9 @@ export const completeJob = (
         },
     });
 
+/**
+ * Approve or Refuse ( 1 or 0 ) a job verification task, and submit the result to the network.
+ */
 export const onClickApproveRefuse = async (
     {
         jobId,
@@ -135,6 +168,9 @@ export const onClickApproveRefuse = async (
     if (onComplete) onComplete();
 };
 
+/**
+ * Decrypt the details of a job with a Keypair.
+ */
 export const decryptJob = (
     {
         keypair,
@@ -149,6 +185,9 @@ export const decryptJob = (
     return JSON.parse(rawEncryptedJob.message);
 };
 
+/**
+ * Request jobs associated to the logged in user, by status, key, or chaincode, from the network.
+ */
 export const getJobList = (
     {
         user,
