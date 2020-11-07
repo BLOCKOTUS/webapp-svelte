@@ -1,4 +1,3 @@
-import { push } from 'svelte-spa-router';
 import type { AxiosResponse } from 'axios';
 
 import appConfig from '@@Config/app';
@@ -28,7 +27,13 @@ export const isAlreadyLogged = (
         .length > 0;
 
 export const loginUser = (
-    users: UsersType,
+    {
+        users,
+        setUsers,
+    }: {
+        users: UsersType,
+        setUsers?: (u: UsersType) => void,
+    },
 ): void => {
     const newUsers = [...users.users, {... users.tmp}];
     users.users = newUsers;
@@ -38,41 +43,42 @@ export const loginUser = (
     users.tmp.wallet = null;
     users.tmp.keypair = { publicKey: '', privateKey: '' };
     users.tmp.username = '';
+    if (setUsers) setUsers(users);
 };
 
 export const login = (
     {
         e,
         users,
-        setInfo,
+        onInfo,
     }: {
         e: Event,
         users: UsersType,
-        setInfo: (info: InfoType) => void,
+        onInfo: (info: InfoType) => void,
     },
 ): void => {
     e.preventDefault();
 
     // set info loading
-    setInfo(makeInfoProps({ type: 'info', value: '', loading: true }));
+    onInfo(makeInfoProps({ type: 'info', value: '', loading: true }));
 
     // validate keypair
     validateKeypair(users.tmp.keypair)
         .catch(_e => {
-            setInfo(makeInfoProps({ type: 'error', value: 'Keypair is invalid', loading: false }));
+            onInfo(makeInfoProps({ type: 'error', value: 'Keypair is invalid', loading: false }));
             return;
         });
 
     // verify if already logged in
     if (isAlreadyLogged(users)) {
-        setInfo(makeInfoProps({ type: 'error', value: `${users.tmp.username} already logged in.`, loading: false }));
+        onInfo(makeInfoProps({ type: 'error', value: `${users.tmp.username} already logged in.`, loading: false }));
         return;
     }
     
     // perform login action
     loginUser(users);
 
-    setInfo(makeInfoProps({ type: 'info', value: 'Successfully registered.', loading: false}));
+    onInfo(makeInfoProps({ type: 'info', value: 'Successfully registered.', loading: false}));
     return;
 };
 
@@ -106,14 +112,21 @@ export const submitRegister = async (
     {
         e,
         users,
-        setInfo,
+        onInfo,
+        onComplete,
+        setUsers,
     }: {
         e: Event,
         users: UsersType,
-        setInfo: (info: InfoType) => void,
+        onInfo?: (info: InfoType) => void,
+        onComplete?: () => void,
+        setUsers?: (u: UsersType) => void,
     },
 ): Promise<void> => {
     e.preventDefault();
+
+    const setInfo = onInfo ? onInfo : () => null;
+
     setInfo(makeInfoProps({ type: 'info', value: '', loading: true }));
 
     // generate keypair
@@ -136,8 +149,7 @@ export const submitRegister = async (
         id,
     };
     users.tmp = user;
-    loginUser(users);
+    loginUser({ users, setUsers });
 
-    // redirect to home page
-    setTimeout(() => push('/'), 1000);
+    if (onComplete) onComplete();
 };

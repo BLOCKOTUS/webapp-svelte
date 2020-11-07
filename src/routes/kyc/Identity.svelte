@@ -9,11 +9,10 @@
 	import type { InfoType } from '@@Modules/info';
 
 	let info: InfoType;
-    $: info = { value: 'Loading your identity...', type: 'info', loading: true };
-	const setInfo = (i: InfoType) => info = i;
+	const onInfo = (i: InfoType) => info = i;
 	const user = getLoggedInUser($users);
 	
-	const getMyIdentityPromise = getMyIdentity({ user, setInfo });
+	const getMyIdentityPromise = getMyIdentity({ user, onInfo });
 </script>
 
 <Header title="Identity" />

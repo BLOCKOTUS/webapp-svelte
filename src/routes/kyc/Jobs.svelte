@@ -14,7 +14,7 @@
 	$: list = [];
 	let info: InfoType;
     $: info = { value: 'Loading job list...', type: 'info', loading: true };
-	const setInfo = (i: InfoType) => info = i;
+	const onInfo = (i: InfoType) => info = i;
 	const user = getLoggedInUser($users);
 
 	const onClickVerify = (i: number) => push(`/kyc/verify/${i}`);
@@ -22,14 +22,14 @@
 	const loadJobList = async () => {
 		const resJobList = await getJobList({user, status: 'pending'});
 		if (!resJobList || !resJobList.data.success) {
-			setInfo(makeInfoProps({ type: 'error', value: resJobList.data.message || 'error', loading: false }));
+			onInfo(makeInfoProps({ type: 'error', value: resJobList.data.message || 'error', loading: false }));
 			return;
 		}
 
 		list = resJobList.data.list;
 		localStorage.setItem('job.list.pending', JSON.stringify(list));
-		if (list.length === 0) setInfo(makeInfoProps({ type: 'info', value: 'You have no job assigned.', loading: false }));
-		else setInfo(makeInfoProps({ type: 'info', value: '', loading: false }));
+		if (list.length === 0) onInfo(makeInfoProps({ type: 'info', value: 'You have no job assigned.', loading: false }));
+		else onInfo(makeInfoProps({ type: 'info', value: '', loading: false }));
 	};
 
 	loadJobList();

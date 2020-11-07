@@ -1,6 +1,5 @@
-import { RSA } from 'hybrid-crypto-js';
+import { RSA, Crypt } from 'hybrid-crypto-js';
 import md5 from 'md5';
-import { Crypt } from 'hybrid-crypto-js';
 
 import type { IdentityType, IdentityTypeWithKYC } from '@@Modules/identity';
 

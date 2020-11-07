@@ -1,4 +1,6 @@
 <script lang="typescript">
+    import { push } from 'svelte-spa-router';
+
     import GoBack from '@@Components/GoBack.svelte';
     import Approve from '@@Components/Approve.svelte';
     import Refuse from '@@Components/Refuse.svelte';
@@ -20,14 +22,15 @@
 
     $: info = { value: '', type: '', loading: true };
 
-    const setInfo = (i: InfoType) => info = i;
+    const onInfo = (i: InfoType) => info = i;
+    const onComplete = () => setTimeout(() => push('/kyc/jobs'), 1500);
 
     // get job id
     const rawJobList = localStorage.getItem('job.list.pending');
     const jobList = JSON.parse(rawJobList);
     const jobId = jobList[params.jobId].jobId;
 
-    const identityVerificationJob = getIdentityVerificationJob({ jobId, user, setInfo });
+    const identityVerificationJob = getIdentityVerificationJob({ jobId, user, onInfo });
 </script>
 
 <Header title="Verify" />
@@ -55,8 +58,8 @@
         </table>
     </div>
     <div class="refuse_approve_button">
-        <Approve label="Approve" onclick={() => onClickApproveRefuse({ jobId, result: 1, user, setInfo })} disabled={!canApproveIdentityVerificationJob(identityVerificationJobResult)}></Approve>
-        <Refuse label="Refuse" onclick={() => onClickApproveRefuse({ jobId, result: 0,  user, setInfo })}></Refuse>
+        <Approve label="Approve" onclick={() => onClickApproveRefuse({ jobId, result: 1, user, onInfo, onComplete })} disabled={!canApproveIdentityVerificationJob(identityVerificationJobResult)}></Approve>
+        <Refuse label="Refuse" onclick={() => onClickApproveRefuse({ jobId, result: 0,  user, onInfo, onComplete })}></Refuse>
     </div>
 {/await}
 

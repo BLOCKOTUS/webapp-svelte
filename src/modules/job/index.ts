@@ -1,5 +1,4 @@
 import type { AxiosResponse } from 'axios';
-import { push } from 'svelte-spa-router';
 import { Crypt } from 'hybrid-crypto-js';
 
 import appConfig from '@@Config/app';
@@ -12,6 +11,7 @@ import type { Encrypted, Keypair } from '@@Modules/crypto';
 
 export type JobType = {
     chaincode: string;
+    key: string;
     creator: string;
     data: string;
     type: string;
@@ -82,22 +82,18 @@ export const postJob = (
         },
     });
 
-export const onClickApproveRefuse = async (
+export const completeJob = (
     {
+        user,
         jobId,
         result,
-        user,
-        setInfo,
     }: {
-        jobId: string,
-        result: 0 | 1,
         user: User,
-        setInfo: (info: InfoType) => void,
+        jobId: string,
+        result: 0| 1 ,
     },
-): Promise<void> => {
-    setInfo(makeInfoProps({ type: 'info', value: 'Submitting result...', loading: true }));
-
-    const resComplete: RequestJobResponse | void = await request({
+): Promise<RequestPostJobResponse> => 
+    request({
         username: user.username,
         wallet: user.wallet,
         url: appConfig.nerves.job.complete.url,
@@ -106,19 +102,35 @@ export const onClickApproveRefuse = async (
             jobId,
             result,
         },
-    }).catch(e => {
-        setInfo(makeInfoProps({ type: 'error', value: e.message || 'error', loading: false }));
     });
 
-    if(!resComplete) return;
+export const onClickApproveRefuse = async (
+    {
+        jobId,
+        result,
+        user,
+        onInfo,
+        onComplete,
+    }: {
+        jobId: string,
+        result: 0 | 1,
+        user: User,
+        onInfo?: (info: InfoType) => void,
+        onComplete?: () => void,
+    },
+): Promise<void> => {
+    const setInfo = onInfo ? onInfo : () => null;
 
-    if(!resComplete.data.success){
+    setInfo(makeInfoProps({ type: 'info', value: 'Submitting result...', loading: true }));
+
+    const resComplete = await completeJob({ user, jobId, result });
+    if(!resComplete || !resComplete.data.success){
         setInfo(makeInfoProps({ type: 'error', value: resComplete.data.message || 'error', loading: false }));
         return;
     }
 
     setInfo(makeInfoProps({ type: 'info', value: 'Job complete. You will be redirected to the job list.', loading: true }));
-    setTimeout(() => push('/kyc/jobs'), 1500);
+    if (onComplete) onComplete();
 };
 
 export const decryptJob = (
