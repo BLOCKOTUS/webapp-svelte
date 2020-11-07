@@ -51,34 +51,38 @@ export const login = (
         e,
         users,
         onInfo,
+        setUsers,
     }: {
         e: Event,
         users: UsersType,
-        onInfo: (info: InfoType) => void,
+        onInfo?: (info: InfoType) => void,
+        setUsers?: (u: UsersType) => void,
     },
 ): void => {
     e.preventDefault();
 
+    const setInfo = onInfo ? onInfo : () => null;
+
     // set info loading
-    onInfo(makeInfoProps({ type: 'info', value: '', loading: true }));
+    setInfo(makeInfoProps({ type: 'info', value: '', loading: true }));
 
     // validate keypair
     validateKeypair(users.tmp.keypair)
         .catch(_e => {
-            onInfo(makeInfoProps({ type: 'error', value: 'Keypair is invalid', loading: false }));
+            setInfo(makeInfoProps({ type: 'error', value: 'Keypair is invalid', loading: false }));
             return;
         });
 
     // verify if already logged in
     if (isAlreadyLogged(users)) {
-        onInfo(makeInfoProps({ type: 'error', value: `${users.tmp.username} already logged in.`, loading: false }));
+        setInfo(makeInfoProps({ type: 'error', value: `${users.tmp.username} already logged in.`, loading: false }));
         return;
     }
     
     // perform login action
-    loginUser(users);
+    loginUser({ users, setUsers });
 
-    onInfo(makeInfoProps({ type: 'info', value: 'Successfully registered.', loading: false}));
+    setInfo(makeInfoProps({ type: 'info', value: 'Successfully registered.', loading: false}));
     return;
 };
 

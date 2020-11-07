@@ -1,5 +1,4 @@
 <script lang="typescript">
-
     import GoBack from '@@Components/GoBack.svelte';
     import Header from '@@Components/Header.svelte';
     import Submit from '@@Components/Submit.svelte';
@@ -7,10 +6,12 @@
     import { users } from "@@Stores/users";
     import { login, submitLoginIsDisabled } from "@@Modules/login";
     import type { InfoType } from '@@Modules/info';
+    import type { UsersType } from '@@Modules/user';
 
     let info: InfoType;
     $: info = { value: '', type: '', loading: false };
 	const onInfo = (i: InfoType) => info = i;
+	const setUsers = (u: UsersType) => $users = u;
     
     $: loginButtonIsDisabled = submitLoginIsDisabled($users);
 
@@ -31,7 +32,7 @@
         <textarea type="text" bind:value={$users.tmp.keypair.publicKey} name="publicKey" placeholder="Copy-paste your publicKey here."/>
         <textarea type="text" bind:value={$users.tmp.keypair.privateKey} name="privateKey" placeholder="Copy-paste your privateKey here."/>
     </div>
-	<Submit onclick={e => login({ e, users: $users, onInfo })} disabled={loginButtonIsDisabled} />
+	<Submit onclick={e => login({ e, users: $users, onInfo, setUsers })} disabled={loginButtonIsDisabled} />
 </form>
     
 <GoBack />
