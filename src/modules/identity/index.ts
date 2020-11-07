@@ -14,10 +14,19 @@ import type { User } from '@@Modules/user';
 import type { UsersType } from '@@Modules/user';
 import type { Keypair, Encrypted } from '@@Modules/crypto';
 
+/**
+ * Array of two numbers representing the number of confirmations for an identity. Confirmed / Total.
+ */
 export type Confirmations = [ number, number ];
 
+/**
+ * Based on Chaincode Contracts settings and identity confirmations, an identity will be KYC (verified) or not.
+ */
 export type KYC = boolean;
 
+/**
+ * Standardized national identity.
+ */
 export type IdentityType = {
     firstname: string;
     lastname: string;
@@ -28,33 +37,57 @@ export type IdentityType = {
     uniqueHash: string;
 }
 
+/**
+ * KYC properties, to associate with a standard identity.
+ */
 export type WithKYC = {
     confirmations: Confirmations;
     kyc: KYC;
 }
 
+/**
+ * Standard identity with KYC properties.
+ */
 export type IdentityTypeWithKYC = IdentityType & WithKYC;
 
-type EncryptedIndentity = string;
+/**
+ * Encrypted identity, as stored on the ledger.
+ */
+type EncryptedIndentity = Encrypted;
 
+/**
+ * Data returned by the network when requesting an identity.
+ */
 export type IdentityResponseObject = WithKYC & { 
     encryptedIdentity: EncryptedIndentity;
     uniqueHash: string;
 };
 
+/**
+ * Object returned by the network when requesting an identity.
+ */
 export type RequestIdentityResponseObject = RequestReponseObject & { 
     identity: IdentityResponseObject;
 };
 
+/**
+ * Object returned by Axios when requesting an identity.
+ */
 export type RequestIdentityResponse = AxiosResponse<RequestIdentityResponseObject>;
 
 const crypt = new Crypt();
 
+/**
+ * Check the validity of the documentation url, with regexp.
+ */
 export const validateDocumentationUrl = (url: string): boolean => {
     const regex = /^https?:\/\/imgur.com\/a\/([\w]{7})$/gm;
     return regex.test(url);
 };
 
+/**
+ * Request an identity from the network.
+ */
 export const getIdentity = (
     {
         user,
@@ -74,6 +107,9 @@ export const getIdentity = (
         },
     });
 
+/**
+ * Submit a new identity to the network.
+ */
 export const postIdentity = (
     {
         user,
@@ -96,6 +132,9 @@ export const postIdentity = (
         },
     });
 
+/**
+ * Request the identity of the logged in user from the network.
+ */
 export const getMyIdentity = async (
     {
         user,
@@ -143,6 +182,9 @@ export const getMyIdentity = async (
     return identityWithKyc;
 };
 
+/**
+ * Create an identity object and submit it to the network.
+ */
 export const createIdentity = async (
     {
         citizen,
@@ -211,6 +253,9 @@ export const createIdentity = async (
     return info;
 };
 
+/**
+ * Retreive the job details of a given jobId. In this context, the job is an identity verification task.
+ */
 export const getIdentityVerificationJob = async (
     {
         jobId,
@@ -268,6 +313,9 @@ export const getIdentityVerificationJob = async (
     ];
 };
 
+/**
+ * Decrypt an encrypted identity with a Keypair.
+ */
 export const decryptIdentity = (
     {
         keypair,
@@ -282,6 +330,10 @@ export const decryptIdentity = (
     return { ...JSON.parse(rawIdentity.message), uniqueHash: identityResponseObject.uniqueHash };
 };
 
+/**
+ * Check if the identity object of the user willing to be verified exactly matches the details of the verification job.
+ * It's a front end filter against malformated malicious jobs, trying to get verified an identity that should not be approved.
+ */
 export const canApproveIdentityVerificationJob = (
     verificationJob: [IdentityTypeWithKYC, IdentityTypeWithKYC] | null,
 ): boolean => 
@@ -289,6 +341,9 @@ export const canApproveIdentityVerificationJob = (
     && verificationJob[0].uniqueHash === verificationJob[1].uniqueHash
     && isEqual(verificationJob[0], verificationJob[1]);
 
+/**
+ * Used for the onClick event of the `submit` button for submitting a new identity.
+ */
 export const submitCreateIdentity = async (
     {
         e,
@@ -318,6 +373,9 @@ export const submitCreateIdentity = async (
     }
 };
 
+/**
+ * Check if the `Submit` button for submitting a new identity should be disabled or not.
+ */
 export const submitCreateIdentityIsDisabled = (citizen: IdentityType): boolean =>
     citizen.firstname.length === 0
     || citizen.lastname.length === 0
