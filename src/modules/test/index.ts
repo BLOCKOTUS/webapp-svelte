@@ -28,11 +28,11 @@ const didRequest = (
 
 export const testDidUrl = (user) => {
     return didRequest({
-        methodName: 'create',
-        methodSpecificId: 'lsdjf',
-        urlPath: '/yo/hop',
-        query: { name: 'dani' },
-        fragment: 'did:yo',
+        methodName: 'blockotus',
+        methodSpecificId: 'user-someuserid',
+        urlPath: '',
+        query: {},
+        fragment: '',
         user,
     });
 };
