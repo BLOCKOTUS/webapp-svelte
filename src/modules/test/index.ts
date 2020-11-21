@@ -29,7 +29,7 @@ const didRequest = (
 export const testDidUrl = (user) => {
     return didRequest({
         methodName: 'blockotus',
-        methodSpecificId: 'user-someuserid',
+        methodSpecificId: 'user:someuserid',
         urlPath: '',
         query: {},
         fragment: '',
