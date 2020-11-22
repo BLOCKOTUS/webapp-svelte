@@ -29,7 +29,7 @@ const didRequest = (
 export const testDidUrl = (user) => {
     return didRequest({
         methodName: 'blockotus',
-        methodSpecificId: btoa('user:Org1MSP::x509::/OU=client/OU=org1/OU=department1/CN=135-dani42::/C=US/ST=North Carolina/O=Hyperledger/OU=Fabric/CN=fabric-ca-server'),
+        methodSpecificId: btoa(`user:${user.id}`),
         urlPath: '',
         query: { service: 'user' },
         fragment: '',
