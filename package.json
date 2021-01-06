@@ -44,7 +44,7 @@
     "typescript": "^4.0.3"
   },
   "dependencies": {
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
     "hybrid-crypto-js": "^0.2.4",
     "lodash": "^4.17.20",
     "md5": "^2.3.0",
