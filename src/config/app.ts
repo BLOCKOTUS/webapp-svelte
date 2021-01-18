@@ -7,6 +7,9 @@ export default {
     },
   },
   nerves: {
+    did: {
+      url: 'http://localhost:3000/did',
+    },
     user: {
       keypair: {
         url: 'http://localhost:3000/user/keypair',
