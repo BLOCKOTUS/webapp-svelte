@@ -10,12 +10,6 @@ export default {
     did: {
       url: 'http://localhost:3000/did',
     },
-    user: {
-      keypair: {
-        url: 'http://localhost:3000/user/keypair',
-      },
-      url: 'http://localhost:3000/user',
-    },
     identity: {
       url: 'http://localhost:3000/identity',
     },
@@ -27,6 +21,12 @@ export default {
         url: 'http://localhost:3000/job/complete',
       },
       url: 'http://localhost:3000/job',
+    },
+    keypair: {
+      url: 'http://localhost:3000/keypair',
+    },
+    user: {
+      url: 'http://localhost:3000/user',
     },
   },
 };

@@ -111,7 +111,7 @@ export const getEncryptedKeypair = (
     request({
         username: user.username,
         wallet: user.wallet,
-        url: appConfig.nerves.user.keypair.url,
+        url: appConfig.nerves.keypair.url,
         method: 'GET',
         params: {
             keypairId,
@@ -141,7 +141,7 @@ export const postEncryptedKeypair = (
     request({
         username: user.username,
         wallet: user.wallet,
-        url: appConfig.nerves.user.keypair.url,
+        url: appConfig.nerves.keypair.url,
         method: 'POST',
         data: {
             sharedWith: makeSharedWithObjectForWorkers({ workersIds, keypairToShare }),
