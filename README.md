@@ -1,7 +1,7 @@
 # BLOCKOTUS Webapp
 ## Boilerplate Svelte.js + TypeScript + EsLint 
 
-![preview](https://github.com/BLOCKOTUS/webapp/blob/master/README_img.png)
+![preview](https://github.com/BLOCKOTUS/webapp-svelte/blob/master/README_img.png)
 
 ## Abstract
 
@@ -33,11 +33,11 @@ Clone or download the repository. Modify at your convenience.
 In an ideal world, you will conserve the same license, and give credits to the author [@danielfebrero](https://github.com/danielfebrero).
 
 ## Screenshots 
-![preview](https://github.com/BLOCKOTUS/webapp/blob/master/README_img_2.png)
+![preview](https://github.com/BLOCKOTUS/webapp-svelte/blob/master/README_img_2.png)
 -
-![preview](https://github.com/BLOCKOTUS/webapp/blob/master/README_img_3.png)
+![preview](https://github.com/BLOCKOTUS/webapp-svelte/blob/master/README_img_3.png)
 -
-![preview](https://github.com/BLOCKOTUS/webapp/blob/master/README_img_4.png)
+![preview](https://github.com/BLOCKOTUS/webapp-svelte/blob/master/README_img_4.png)
 -
-![preview](https://github.com/BLOCKOTUS/webapp/blob/master/README_img_5.png)
+![preview](https://github.com/BLOCKOTUS/webapp-svelte/blob/master/README_img_5.png)
 -

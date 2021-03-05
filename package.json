@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/blockotus/webapp.git"
+    "url": "git+https://github.com/BLOCKOTUS/webapp-svelte.git"
   },
   "author": "Daniel Febrero",
   "license": "AGPL-3.0",
