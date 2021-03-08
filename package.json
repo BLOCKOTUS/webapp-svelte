@@ -1,6 +1,6 @@
 {
   "name": "blockotus-webapp",
-  "version": "0.2.5-alpha",
+  "version": "0.2.7-alpha",
   "description": "BLOCKOTUS Webapp - Boilerplate Svelte.JS + TypeScript + EsLint",
   "scripts": {
     "build": "rollup -c",
