@@ -47,7 +47,7 @@
   "dependencies": {
     "axios": "^0.21.1",
     "hybrid-crypto-js": "^0.2.4",
-    "lodash": "^4.17.20",
+    "lodash": "^4.17.21",
     "md5": "^2.3.0",
     "sirv-cli": "^1.0.6",
     "svelte-input-mask": "^1.0.1",
